@@ -51,9 +51,63 @@
         }
 
         .container {
-            max-width: 600px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 0 4px;
+        }
+
+        /* تصميم مخصص للحاسوب */
+        @media (min-width: 768px) {
+            body {
+                padding: 24px;
+            }
+            
+            .container {
+                max-width: 1400px;
+            }
+            
+            .tabs {
+                max-width: 600px;
+                margin: 0 auto 20px auto;
+            }
+            
+            .card {
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+            
+            .card:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-lg);
+            }
+            
+            .summary-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+            }
+            
+            .list-item {
+                transition: all 0.2s;
+            }
+            
+            .list-item:hover {
+                transform: translateX(-4px);
+                box-shadow: var(--shadow-sm);
+            }
+        }
+
+        /* تصميم الهاتف */
+        @media (max-width: 767px) {
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
         }
 
         .card {
@@ -94,6 +148,11 @@
             font-size: 0.9rem;
             color: var(--text-primary);
             transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-sm);
         }
 
         .tabs {
@@ -143,6 +202,13 @@
             font-size: 1rem;
             background: var(--bg-primary);
             color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
         }
 
         button {
@@ -158,12 +224,21 @@
             color: white;
         }
 
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
         button:active {
-            transform: scale(0.97);
+            transform: scale(0.98);
         }
 
         .btn-danger {
             background: var(--danger);
+        }
+
+        .btn-warning {
+            background: var(--warning);
         }
 
         .list-item {
@@ -205,6 +280,11 @@
             cursor: pointer;
             padding: 8px;
             font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+
+        .delete-icon:hover {
+            transform: scale(1.1);
         }
 
         .history-item {
@@ -213,11 +293,15 @@
             padding: 12px;
             margin-bottom: 8px;
             border-right: 4px solid var(--accent-primary);
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            transform: translateX(-4px);
         }
 
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
             margin-bottom: 16px;
         }
@@ -227,6 +311,12 @@
             padding: 14px;
             border-radius: 16px;
             text-align: center;
+            transition: all 0.2s;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
         }
 
         .summary-card i {
@@ -237,7 +327,6 @@
 
         .charts-container {
             display: grid;
-            grid-template-columns: 1fr;
             gap: 16px;
             margin-top: 16px;
         }
@@ -267,9 +356,21 @@
             border-radius: 32px;
             padding: 40px 32px;
             width: 100%;
-            max-width: 350px;
+            max-width: 400px;
             text-align: center;
             box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .login-card input {
@@ -278,9 +379,50 @@
             font-size: 1.1rem;
         }
 
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-content input {
+            margin: 20px 0;
+        }
+
+        .user-info {
+            background: var(--accent-primary);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         @media (max-width: 480px) {
             body { padding: 12px; }
             .card { padding: 16px; }
+            .login-card { padding: 32px 24px; }
         }
     </style>
 </head>
@@ -291,8 +433,8 @@
     <div class="login-card">
         <i class="fas fa-wallet" style="font-size: 60px; color: #10b981; margin-bottom: 20px;"></i>
         <h2 style="margin-bottom: 12px; color: var(--text-primary);">مرحباً بك</h2>
-        <p style="margin-bottom: 24px; color: var(--text-secondary);">أدخل اسم المستخدم لحفظ بياناتك</p>
-        <input type="text" id="usernameInput" placeholder="اسم المستخدم" autocomplete="off">
+        <p style="margin-bottom: 24px; color: var(--text-secondary);">أدخل بريدك الإلكتروني لحفظ بياناتك</p>
+        <input type="email" id="usernameInput" placeholder="البريد الإلكتروني" autocomplete="email">
         <button id="loginBtn" style="background: #10b981;">دخول / إنشاء حساب <i class="fas fa-arrow-left"></i></button>
         <p style="margin-top: 20px; font-size: 0.75rem; color: var(--text-secondary);">✨ سيتم حفظ جميع بياناتك تلقائياً</p>
     </div>
@@ -303,10 +445,14 @@
     <div class="container">
         <div class="app-header">
             <h1><i class="fas fa-coins"></i> <span id="appTitle">مدير المال</span></h1>
-            <div style="display: flex; gap: 8px;">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <div class="user-info" id="userInfoDisplay">
+                    <i class="fas fa-user"></i>
+                    <span id="currentUserEmail"></span>
+                </div>
                 <button class="icon-btn" id="themeToggleBtn"><i class="fas fa-moon"></i></button>
                 <button class="icon-btn" id="langToggleBtn">🇬🇧 EN</button>
-                <button class="icon-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
+                <button class="icon-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> خروج</button>
             </div>
         </div>
 
@@ -345,7 +491,7 @@
 
             <div class="card">
                 <h3 style="margin-bottom: 16px;"><i class="fas fa-list"></i> قائمة الديون</h3>
-                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
                     <input type="text" id="searchDebts" placeholder="🔍 بحث" style="flex:1;">
                     <select id="filterDebts" style="width: auto;"><option value="all">الكل</option><option value="debt">عليّ</option><option value="owed">لي</option></select>
                 </div>
@@ -383,12 +529,12 @@
         <div id="historyPanel" class="tab-content" style="display: none;">
             <div class="card">
                 <h3 style="margin-bottom: 16px;"><i class="fas fa-clock"></i> سجل جميع المعاملات</h3>
-                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
                     <input type="text" id="searchHistory" placeholder="🔍 بحث في السجل" style="flex:1;">
                     <select id="filterHistoryType"><option value="all">الكل</option><option value="debt">الديون</option><option value="expense">المصروفات</option></select>
                 </div>
                 <div id="historyList"></div>
-                <button id="clearHistoryBtn" class="btn-danger" style="margin-top: 12px;"><i class="fas fa-trash"></i> مسح السجل</button>
+                <button id="clearHistoryBtn" class="btn-warning" style="margin-top: 12px;"><i class="fas fa-trash-alt"></i> مسح السجل (يتطلب كود)</button>
             </div>
         </div>
 
@@ -441,6 +587,9 @@
         };
         localStorage.setItem(`debtManager_${currentUser}`, JSON.stringify(data));
         console.log('✅ تم حفظ البيانات للمستخدم:', currentUser);
+        
+        // حفظ حالة تسجيل الدخول
+        localStorage.setItem('lastLoggedInUser', currentUser);
     }
 
     function loadUserData(username) {
@@ -490,6 +639,74 @@
         });
         if (transactions.length > 300) transactions.pop();
         saveAll();
+    }
+
+    // ==================== تأمين الخروج ومسح البيانات ====================
+    function showCodeModal(action, callback) {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <i class="fas fa-lock" style="font-size: 48px; color: var(--accent-primary); margin-bottom: 16px;"></i>
+                <h3>${action === 'logout' ? 'تأكيد الخروج' : 'تأكيد مسح البيانات'}</h3>
+                <p style="margin: 16px 0; color: var(--text-secondary);">
+                    ${action === 'logout' ? 'أدخل كود الخروج (1234) لتأكيد الخروج' : 'أدخل كود مسح البيانات (5678) لتأكيد المسح'}
+                </p>
+                <input type="password" id="codeInput" placeholder="أدخل الكود" autocomplete="off">
+                <div style="display: flex; gap: 12px; margin-top: 20px;">
+                    <button id="confirmCodeBtn" style="flex:1;">تأكيد</button>
+                    <button id="cancelCodeBtn" style="flex:1; background: var(--danger);">إلغاء</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        const confirmBtn = modal.querySelector('#confirmCodeBtn');
+        const cancelBtn = modal.querySelector('#cancelCodeBtn');
+        const codeInput = modal.querySelector('#codeInput');
+        
+        const handleConfirm = () => {
+            const code = codeInput.value;
+            const isValid = (action === 'logout' && code === '1234') || (action === 'clearHistory' && code === '5678');
+            
+            if (isValid) {
+                modal.remove();
+                callback();
+            } else {
+                alert('الكود غير صحيح!');
+                codeInput.value = '';
+                codeInput.focus();
+            }
+        };
+        
+        const handleCancel = () => {
+            modal.remove();
+        };
+        
+        confirmBtn.onclick = handleConfirm;
+        cancelBtn.onclick = handleCancel;
+        codeInput.onkeypress = (e) => {
+            if (e.key === 'Enter') handleConfirm();
+        };
+        codeInput.focus();
+    }
+    
+    function logout() {
+        showCodeModal('logout', () => {
+            currentUser = null;
+            localStorage.removeItem('lastLoggedInUser');
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('usernameInput').value = '';
+        });
+    }
+    
+    function clearHistoryWithCode() {
+        showCodeModal('clearHistory', () => {
+            transactions = [];
+            renderAll();
+            alert('✅ تم مسح السجل بنجاح!');
+        });
     }
 
     // ==================== دوال إدارة البيانات ====================
@@ -586,13 +803,6 @@
     function deleteExpense(id) {
         expenses = expenses.filter(e => e.id !== id);
         renderAll();
-    }
-
-    function clearHistory() {
-        if (confirm("هل أنت متأكد من مسح كل السجل؟")) {
-            transactions = [];
-            renderAll();
-        }
     }
 
     // ==================== دوال العرض ====================
@@ -725,6 +935,7 @@
     }
 
     function renderAll() {
+        if (!currentUser) return;
         renderDebtsList();
         renderExpensesList();
         renderHistoryList();
@@ -748,19 +959,35 @@
 
     // ==================== ربط الأحداث وتسجيل الدخول ====================
     function initApp() {
+        // التحقق من وجود جلسة سابقة
+        const lastUser = localStorage.getItem('lastLoggedInUser');
+        if (lastUser) {
+            currentUser = lastUser;
+            loadUserData(currentUser);
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('currentUserEmail').textContent = currentUser;
+        }
+        
         // زر تسجيل الدخول
         const loginBtn = document.getElementById('loginBtn');
         if (loginBtn) {
             loginBtn.onclick = function() {
                 const username = document.getElementById('usernameInput').value.trim();
                 if (!username) {
-                    alert("الرجاء إدخال اسم المستخدم");
+                    alert("الرجاء إدخال البريد الإلكتروني");
+                    return;
+                }
+                if (!username.includes('@')) {
+                    alert("الرجاء إدخال بريد إلكتروني صحيح");
                     return;
                 }
                 currentUser = username;
                 loadUserData(currentUser);
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
+                document.getElementById('currentUserEmail').textContent = currentUser;
+                localStorage.setItem('lastLoggedInUser', currentUser);
             };
         }
         
@@ -768,7 +995,7 @@
         document.getElementById('addDebtBtn').onclick = addDebt;
         document.getElementById('addExpenseBtn').onclick = addExpense;
         document.getElementById('applyPaymentBtn').onclick = applyPayment;
-        document.getElementById('clearHistoryBtn').onclick = clearHistory;
+        document.getElementById('clearHistoryBtn').onclick = clearHistoryWithCode;
         
         document.getElementById('updateRateBtn').onclick = () => {
             usdToLbp = parseFloat(document.getElementById('usdToLbpRate').value);
@@ -787,12 +1014,7 @@
             renderAll();
         };
         
-        document.getElementById('logoutBtn').onclick = () => {
-            currentUser = null;
-            document.getElementById('mainApp').style.display = 'none';
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('usernameInput').value = '';
-        };
+        document.getElementById('logoutBtn').onclick = logout;
         
         document.getElementById('searchDebts')?.addEventListener('input', renderDebtsList);
         document.getElementById('filterDebts')?.addEventListener('change', renderDebtsList);
@@ -811,4 +1033,3 @@
 </script>
 </body>
 </html>
-```
