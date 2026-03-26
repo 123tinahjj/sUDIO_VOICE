@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -6,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>مدير المال الشامل | ديون + مصروفات + سجل</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * {
@@ -56,7 +56,6 @@
             padding: 0 4px;
         }
 
-        /* تصميم مخصص للحاسوب */
         @media (min-width: 768px) {
             body {
                 padding: 24px;
@@ -67,12 +66,8 @@
             }
             
             .tabs {
-                max-width: 600px;
+                max-width: 700px;
                 margin: 0 auto 20px auto;
-            }
-            
-            .card {
-                transition: transform 0.2s, box-shadow 0.2s;
             }
             
             .card:hover {
@@ -88,18 +83,8 @@
                 grid-template-columns: 1fr 1fr;
                 gap: 24px;
             }
-            
-            .list-item {
-                transition: all 0.2s;
-            }
-            
-            .list-item:hover {
-                transform: translateX(-4px);
-                box-shadow: var(--shadow-sm);
-            }
         }
 
-        /* تصميم الهاتف */
         @media (max-width: 767px) {
             .summary-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -163,6 +148,7 @@
             padding: 6px;
             border-radius: 60px;
             border: 1px solid var(--border-color);
+            flex-wrap: wrap;
         }
 
         .tab {
@@ -229,10 +215,6 @@
             box-shadow: var(--shadow-md);
         }
 
-        button:active {
-            transform: scale(0.98);
-        }
-
         .btn-danger {
             background: var(--danger);
         }
@@ -283,21 +265,12 @@
             transition: all 0.2s;
         }
 
-        .delete-icon:hover {
-            transform: scale(1.1);
-        }
-
         .history-item {
             background: var(--bg-primary);
             border-radius: 14px;
             padding: 12px;
             margin-bottom: 8px;
             border-right: 4px solid var(--accent-primary);
-            transition: all 0.2s;
-        }
-
-        .history-item:hover {
-            transform: translateX(-4px);
         }
 
         .summary-grid {
@@ -311,18 +284,6 @@
             padding: 14px;
             border-radius: 16px;
             text-align: center;
-            transition: all 0.2s;
-        }
-
-        .summary-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .summary-card i {
-            font-size: 1.5rem;
-            margin-bottom: 6px;
-            color: var(--accent-primary);
         }
 
         .charts-container {
@@ -373,12 +334,6 @@
             }
         }
 
-        .login-card input {
-            margin: 20px 0;
-            text-align: center;
-            font-size: 1.1rem;
-        }
-
         .modal {
             position: fixed;
             top: 0;
@@ -401,11 +356,6 @@
             max-width: 400px;
             width: 100%;
             text-align: center;
-            animation: slideUp 0.3s ease;
-        }
-
-        .modal-content input {
-            margin: 20px 0;
         }
 
         .user-info {
@@ -419,16 +369,50 @@
             gap: 8px;
         }
 
+        .report-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .report-buttons button {
+            flex: 1;
+            background: var(--accent-secondary);
+        }
+
+        .currency-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            background: var(--bg-primary);
+            padding: 8px;
+            border-radius: 50px;
+        }
+
+        .currency-option {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .currency-option.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+
         @media (max-width: 480px) {
             body { padding: 12px; }
             .card { padding: 16px; }
-            .login-card { padding: 32px 24px; }
         }
     </style>
 </head>
 <body>
 
-<!-- شاشة تسجيل الدخول -->
 <div id="loginScreen" class="login-overlay">
     <div class="login-card">
         <i class="fas fa-wallet" style="font-size: 60px; color: #10b981; margin-bottom: 20px;"></i>
@@ -436,11 +420,9 @@
         <p style="margin-bottom: 24px; color: var(--text-secondary);">أدخل بريدك الإلكتروني لحفظ بياناتك</p>
         <input type="email" id="usernameInput" placeholder="البريد الإلكتروني" autocomplete="email">
         <button id="loginBtn" style="background: #10b981;">دخول / إنشاء حساب <i class="fas fa-arrow-left"></i></button>
-        <p style="margin-top: 20px; font-size: 0.75rem; color: var(--text-secondary);">✨ سيتم حفظ جميع بياناتك تلقائياً</p>
     </div>
 </div>
 
-<!-- التطبيق الرئيسي -->
 <div id="mainApp" style="display: none;">
     <div class="container">
         <div class="app-header">
@@ -456,7 +438,6 @@
             </div>
         </div>
 
-        <!-- سعر الصرف -->
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
@@ -469,15 +450,19 @@
             </div>
         </div>
 
-        <!-- التبويبات -->
+        <div class="currency-toggle">
+            <div class="currency-option active" data-currency="USD">🇺🇸 عرض بالدولار</div>
+            <div class="currency-option" data-currency="LBP">🇱🇧 عرض بالليرة</div>
+        </div>
+
         <div class="tabs">
             <div class="tab active" data-tab="debts"><i class="fas fa-hand-holding-usd"></i> <span>الديون</span></div>
             <div class="tab" data-tab="expenses"><i class="fas fa-shopping-cart"></i> <span>مصروفاتي</span></div>
             <div class="tab" data-tab="history"><i class="fas fa-history"></i> <span>السجل</span></div>
             <div class="tab" data-tab="analytics"><i class="fas fa-chart-line"></i> <span>تحليل</span></div>
+            <div class="tab" data-tab="reports"><i class="fas fa-file-alt"></i> <span>تقارير</span></div>
         </div>
 
-        <!-- لوحة الديون -->
         <div id="debtsPanel" class="tab-content">
             <div class="card">
                 <h3 style="margin-bottom: 16px;"><i class="fas fa-plus-circle"></i> إضافة دين</h3>
@@ -507,7 +492,6 @@
             </div>
         </div>
 
-        <!-- لوحة المصروفات -->
         <div id="expensesPanel" class="tab-content" style="display: none;">
             <div class="card">
                 <h3 style="margin-bottom: 16px;"><i class="fas fa-receipt"></i> إضافة مصروف يومي</h3>
@@ -525,7 +509,6 @@
             </div>
         </div>
 
-        <!-- لوحة السجل -->
         <div id="historyPanel" class="tab-content" style="display: none;">
             <div class="card">
                 <h3 style="margin-bottom: 16px;"><i class="fas fa-clock"></i> سجل جميع المعاملات</h3>
@@ -534,19 +517,18 @@
                     <select id="filterHistoryType"><option value="all">الكل</option><option value="debt">الديون</option><option value="expense">المصروفات</option></select>
                 </div>
                 <div id="historyList"></div>
-                <button id="clearHistoryBtn" class="btn-warning" style="margin-top: 12px;"><i class="fas fa-trash-alt"></i> مسح السجل (يتطلب كود)</button>
+                <button id="clearHistoryBtn" class="btn-warning" style="margin-top: 12px;"><i class="fas fa-trash-alt"></i> مسح السجل</button>
             </div>
         </div>
 
-        <!-- لوحة التحليل -->
         <div id="analyticsPanel" class="tab-content" style="display: none;">
             <div class="card">
                 <h3 style="margin-bottom: 16px;"><i class="fas fa-chart-pie"></i> التحليل المالي</h3>
                 <div class="summary-grid">
-                    <div class="summary-card"><i class="fas fa-hand-holding-usd"></i><div id="totalDebtsSummary">0 USD</div><small>إجمالي الديون</small></div>
-                    <div class="summary-card"><i class="fas fa-wallet"></i><div id="totalExpensesToday">0 USD</div><small>مصروفات اليوم</small></div>
-                    <div class="summary-card"><i class="fas fa-chart-line"></i><div id="totalExpensesMonth">0 USD</div><small>هذا الشهر</small></div>
-                    <div class="summary-card"><i class="fas fa-balance-scale"></i><div id="netPosition">0 USD</div><small>صافي المركز</small></div>
+                    <div class="summary-card"><i class="fas fa-hand-holding-usd"></i><div id="totalDebtsSummary">0</div><small>إجمالي الديون</small></div>
+                    <div class="summary-card"><i class="fas fa-wallet"></i><div id="totalExpensesToday">0</div><small>مصروفات اليوم</small></div>
+                    <div class="summary-card"><i class="fas fa-chart-line"></i><div id="totalExpensesMonth">0</div><small>هذا الشهر</small></div>
+                    <div class="summary-card"><i class="fas fa-balance-scale"></i><div id="netPosition">0</div><small>صافي المركز</small></div>
                 </div>
                 <div class="charts-container">
                     <canvas id="expenseCategoryChart"></canvas>
@@ -557,159 +539,104 @@
                 </div>
             </div>
         </div>
+
+        <div id="reportsPanel" class="tab-content" style="display: none;">
+            <div class="card">
+                <h3 style="margin-bottom: 16px;"><i class="fas fa-calendar-alt"></i> التقارير اليومية والشهرية</h3>
+                
+                <div class="input-group">
+                    <label>اختر التقرير</label>
+                    <select id="reportType">
+                        <option value="daily">تقرير يومي</option>
+                        <option value="monthly">تقرير شهري</option>
+                    </select>
+                </div>
+                
+                <div id="dailyDatePicker" class="input-group">
+                    <label>اختر التاريخ</label>
+                    <input type="date" id="reportDate">
+                </div>
+                
+                <div id="monthlyPicker" class="input-group" style="display: none;">
+                    <label>اختر الشهر والسنة</label>
+                    <input type="month" id="reportMonth">
+                </div>
+                
+                <div id="reportContent" style="background: var(--bg-primary); border-radius: 16px; padding: 16px; margin: 16px 0;"></div>
+                
+                <div class="report-buttons">
+                    <button id="exportExcelBtn"><i class="fas fa-file-excel"></i> تصدير Excel</button>
+                    <button id="exportCSVBtn"><i class="fas fa-file-csv"></i> تصدير CSV</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    // ==================== البيانات العامة ====================
     let currentUser = null;
     let debts = [];
     let expenses = [];
     let transactions = [];
     let usdToLbp = 89500;
     let currentLang = 'ar';
+    let displayCurrency = 'USD';
     let categoryChart = null;
     let debtVsExpenseChart = null;
 
-    // ==================== دوال المساعدة ====================
     function convertToUSD(amount, currency) {
         return currency === 'USD' ? amount : amount / usdToLbp;
     }
 
+    function convertFromUSD(amount, targetCurrency) {
+        return targetCurrency === 'USD' ? amount : amount * usdToLbp;
+    }
+
+    function formatAmount(amountUSD) {
+        if (displayCurrency === 'USD') {
+            return `${amountUSD.toFixed(2)} USD`;
+        } else {
+            const lbpAmount = amountUSD * usdToLbp;
+            return `${Math.round(lbpAmount).toLocaleString()} LBP`;
+        }
+    }
+
     function saveAll() {
         if (!currentUser) return;
-        const data = {
-            debts: debts,
-            expenses: expenses,
-            transactions: transactions,
-            usdToLbp: usdToLbp,
-            lang: currentLang
-        };
+        const data = { debts, expenses, transactions, usdToLbp, lang: currentLang };
         localStorage.setItem(`debtManager_${currentUser}`, JSON.stringify(data));
-        console.log('✅ تم حفظ البيانات للمستخدم:', currentUser);
-        
-        // حفظ حالة تسجيل الدخول
         localStorage.setItem('lastLoggedInUser', currentUser);
     }
 
     function loadUserData(username) {
         const saved = localStorage.getItem(`debtManager_${username}`);
         if (saved) {
-            try {
-                const data = JSON.parse(saved);
-                debts = data.debts || [];
-                expenses = data.expenses || [];
-                transactions = data.transactions || [];
-                usdToLbp = data.usdToLbp || 89500;
-                if (data.lang) currentLang = data.lang;
-                console.log(`✅ تم تحميل بيانات المستخدم: ${username}، عدد الديون: ${debts.length}`);
-            } catch(e) {
-                console.error('خطأ في تحميل البيانات:', e);
-                resetData();
-            }
+            const data = JSON.parse(saved);
+            debts = data.debts || [];
+            expenses = data.expenses || [];
+            transactions = data.transactions || [];
+            usdToLbp = data.usdToLbp || 89500;
+            if (data.lang) currentLang = data.lang;
         } else {
-            console.log(`📝 مستخدم جديد: ${username}`);
-            resetData();
+            debts = [];
+            expenses = [];
+            transactions = [];
         }
         document.getElementById('usdToLbpRate').value = usdToLbp;
         updateLanguage();
         renderAll();
     }
 
-    function resetData() {
-        debts = [];
-        expenses = [];
-        transactions = [];
-        // إضافة بيانات تجريبية جميلة
-        debts.push({ id: Date.now(), name: "أحمد", originalAmount: 200, currency: "USD", remainingAmount: 200, note: "قرض شخصي", type: "debt", createdAt: new Date().toISOString() });
-        debts.push({ id: Date.now()+1, name: "سارة", originalAmount: 150, currency: "USD", remainingAmount: 150, note: "مستلزمات", type: "owed", createdAt: new Date().toISOString() });
-        expenses.push({ id: Date.now()+2, name: "غداء", amount: 25, currency: "USD", category: "food", date: new Date().toISOString() });
-        expenses.push({ id: Date.now()+3, name: "مواصلات", amount: 10, currency: "USD", category: "transport", date: new Date().toISOString() });
-        transactions.push({ id: Date.now()+4, type: "debt", description: "دين جديد - أحمد", amount: 200, currency: "USD", date: new Date().toISOString() });
-    }
-
     function addTransaction(type, description, amount, currency) {
         transactions.unshift({
             id: Date.now(),
-            type: type,
-            description: description,
-            amount: amount,
-            currency: currency,
+            type, description, amount, currency,
             date: new Date().toISOString()
         });
-        if (transactions.length > 300) transactions.pop();
+        if (transactions.length > 500) transactions.pop();
         saveAll();
     }
 
-    // ==================== تأمين الخروج ومسح البيانات ====================
-    function showCodeModal(action, callback) {
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <i class="fas fa-lock" style="font-size: 48px; color: var(--accent-primary); margin-bottom: 16px;"></i>
-                <h3>${action === 'logout' ? 'تأكيد الخروج' : 'تأكيد مسح البيانات'}</h3>
-                <p style="margin: 16px 0; color: var(--text-secondary);">
-                    ${action === 'logout' ? 'أدخل كود الخروج (1234) لتأكيد الخروج' : 'أدخل كود مسح البيانات (5678) لتأكيد المسح'}
-                </p>
-                <input type="password" id="codeInput" placeholder="أدخل الكود" autocomplete="off">
-                <div style="display: flex; gap: 12px; margin-top: 20px;">
-                    <button id="confirmCodeBtn" style="flex:1;">تأكيد</button>
-                    <button id="cancelCodeBtn" style="flex:1; background: var(--danger);">إلغاء</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
-        
-        const confirmBtn = modal.querySelector('#confirmCodeBtn');
-        const cancelBtn = modal.querySelector('#cancelCodeBtn');
-        const codeInput = modal.querySelector('#codeInput');
-        
-        const handleConfirm = () => {
-            const code = codeInput.value;
-            const isValid = (action === 'logout' && code === '1234') || (action === 'clearHistory' && code === '5678');
-            
-            if (isValid) {
-                modal.remove();
-                callback();
-            } else {
-                alert('الكود غير صحيح!');
-                codeInput.value = '';
-                codeInput.focus();
-            }
-        };
-        
-        const handleCancel = () => {
-            modal.remove();
-        };
-        
-        confirmBtn.onclick = handleConfirm;
-        cancelBtn.onclick = handleCancel;
-        codeInput.onkeypress = (e) => {
-            if (e.key === 'Enter') handleConfirm();
-        };
-        codeInput.focus();
-    }
-    
-    function logout() {
-        showCodeModal('logout', () => {
-            currentUser = null;
-            localStorage.removeItem('lastLoggedInUser');
-            document.getElementById('mainApp').style.display = 'none';
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('usernameInput').value = '';
-        });
-    }
-    
-    function clearHistoryWithCode() {
-        showCodeModal('clearHistory', () => {
-            transactions = [];
-            renderAll();
-            alert('✅ تم مسح السجل بنجاح!');
-        });
-    }
-
-    // ==================== دوال إدارة البيانات ====================
     function addDebt() {
         const name = document.getElementById('debtorName').value.trim();
         const amount = parseFloat(document.getElementById('amountValue').value);
@@ -720,17 +647,11 @@
         if (!name) { alert("الرجاء إدخال الاسم"); return; }
         if (isNaN(amount) || amount <= 0) { alert("الرجاء إدخال مبلغ صحيح"); return; }
         
-        const newDebt = {
-            id: Date.now(),
-            name: name,
-            originalAmount: amount,
-            currency: currency,
-            remainingAmount: amount,
-            note: note || "",
-            type: type,
+        debts.push({
+            id: Date.now(), name, originalAmount: amount, currency,
+            remainingAmount: amount, note: note || "", type,
             createdAt: new Date().toISOString()
-        };
-        debts.push(newDebt);
+        });
         addTransaction('debt', `${type === 'debt' ? 'دين جديد عليّ' : 'دين جديد لي'} - ${name}`, amount, currency);
         
         document.getElementById('debtorName').value = '';
@@ -748,15 +669,10 @@
         if (!name) { alert("الرجاء إدخال البيان"); return; }
         if (isNaN(amount) || amount <= 0) { alert("الرجاء إدخال مبلغ صحيح"); return; }
         
-        const newExpense = {
-            id: Date.now(),
-            name: name,
-            amount: amount,
-            currency: currency,
-            category: category,
+        expenses.push({
+            id: Date.now(), name, amount, currency, category,
             date: new Date().toISOString()
-        };
-        expenses.push(newExpense);
+        });
         addTransaction('expense', `مصروف: ${name}`, amount, currency);
         
         document.getElementById('expenseName').value = '';
@@ -780,32 +696,20 @@
         let amountInDebtCurr = payCurrency === debt.currency ? payAmount : 
                                (payCurrency === 'USD' ? payAmount * usdToLbp : payAmount / usdToLbp);
         
-        if (amountInDebtCurr > debt.remainingAmount) {
-            amountInDebtCurr = debt.remainingAmount;
-        }
+        if (amountInDebtCurr > debt.remainingAmount) amountInDebtCurr = debt.remainingAmount;
         
         debt.remainingAmount -= amountInDebtCurr;
         addTransaction('payment', `تسديد لـ ${debt.name}`, payAmount, payCurrency);
         
-        if (debt.remainingAmount < 0.01) {
-            debts = debts.filter(d => d.id !== id);
-        }
+        if (debt.remainingAmount < 0.01) debts = debts.filter(d => d.id !== id);
         
         document.getElementById('paymentAmount').value = '';
         renderAll();
     }
 
-    function deleteDebt(id) {
-        debts = debts.filter(d => d.id !== id);
-        renderAll();
-    }
+    function deleteDebt(id) { debts = debts.filter(d => d.id !== id); renderAll(); }
+    function deleteExpense(id) { expenses = expenses.filter(e => e.id !== id); renderAll(); }
 
-    function deleteExpense(id) {
-        expenses = expenses.filter(e => e.id !== id);
-        renderAll();
-    }
-
-    // ==================== دوال العرض ====================
     function renderDebtsList() {
         const search = document.getElementById('searchDebts')?.value.toLowerCase() || '';
         const filter = document.getElementById('filterDebts')?.value || 'all';
@@ -815,54 +719,52 @@
         const container = document.getElementById('debtsList');
         if (!container) return;
         
-        if (filtered.length === 0) {
-            container.innerHTML = '<div class="list-item">لا توجد ديون</div>';
-        } else {
-            container.innerHTML = filtered.map(d => `
+        container.innerHTML = filtered.length === 0 ? '<div class="list-item">لا توجد ديون</div>' :
+            filtered.map(d => {
+                const amountUSD = convertToUSD(d.remainingAmount, d.currency);
+                return `
                 <div class="list-item">
                     <div class="item-info">
                         <div class="item-title">${d.name} ${d.type === 'debt' ? '🔴' : '🟢'}</div>
                         <div class="item-details">${d.note || 'لا توجد ملاحظات'}</div>
                     </div>
-                    <div class="item-amount">${d.remainingAmount.toFixed(2)} ${d.currency}</div>
+                    <div class="item-amount">${formatAmount(amountUSD)}</div>
                     <i class="fas fa-trash delete-icon" onclick="window.deleteDebt(${d.id})"></i>
-                </div>
-            `).join('');
-        }
+                </div>`;
+            }).join('');
         
         const select = document.getElementById('selectDebtForPayment');
         if (select) {
             const activeDebts = debts.filter(d => d.remainingAmount > 0 && d.type === 'debt');
             select.innerHTML = '<option value="">-- اختر ديناً --</option>' + 
-                activeDebts.map(d => `<option value="${d.id}">${d.name} - ${d.remainingAmount.toFixed(2)} ${d.currency}</option>`).join('');
+                activeDebts.map(d => `<option value="${d.id}">${d.name} - ${formatAmount(convertToUSD(d.remainingAmount, d.currency))}</option>`).join('');
         }
     }
 
     function renderExpensesList() {
         const today = new Date().toDateString();
         const todayExpenses = expenses.filter(e => new Date(e.date).toDateString() === today);
-        const totalToday = todayExpenses.reduce((s, e) => s + convertToUSD(e.amount, e.currency), 0);
+        const totalTodayUSD = todayExpenses.reduce((s, e) => s + convertToUSD(e.amount, e.currency), 0);
         
         const summaryDiv = document.getElementById('todayExpensesSummary');
-        if (summaryDiv) summaryDiv.innerHTML = `<strong>${totalToday.toFixed(2)} USD</strong>`;
+        if (summaryDiv) summaryDiv.innerHTML = `<strong>${formatAmount(totalTodayUSD)}</strong>`;
         
         const container = document.getElementById('expensesList');
         if (!container) return;
         
-        if (expenses.length === 0) {
-            container.innerHTML = '<div class="list-item">لا توجد مصروفات</div>';
-        } else {
-            container.innerHTML = expenses.slice(0, 50).map(e => `
+        container.innerHTML = expenses.length === 0 ? '<div class="list-item">لا توجد مصروفات</div>' :
+            expenses.slice(0, 50).map(e => {
+                const amountUSD = convertToUSD(e.amount, e.currency);
+                return `
                 <div class="list-item">
                     <div class="item-info">
                         <div class="item-title">${e.name}</div>
                         <div class="item-details">${e.category} | ${new Date(e.date).toLocaleDateString('ar-EG')}</div>
                     </div>
-                    <div class="item-amount">${e.amount.toFixed(2)} ${e.currency}</div>
+                    <div class="item-amount">${formatAmount(amountUSD)}</div>
                     <i class="fas fa-trash delete-icon" onclick="window.deleteExpense(${e.id})"></i>
-                </div>
-            `).join('');
-        }
+                </div>`;
+            }).join('');
     }
 
     function renderHistoryList() {
@@ -874,64 +776,190 @@
         const container = document.getElementById('historyList');
         if (!container) return;
         
-        if (filtered.length === 0) {
-            container.innerHTML = '<div class="history-item">لا توجد معاملات</div>';
-        } else {
-            container.innerHTML = filtered.slice(0, 100).map(t => `
+        container.innerHTML = filtered.length === 0 ? '<div class="history-item">لا توجد معاملات</div>' :
+            filtered.slice(0, 100).map(t => {
+                const amountUSD = convertToUSD(t.amount, t.currency);
+                return `
                 <div class="history-item">
                     <div><strong>${t.description}</strong></div>
-                    <div style="font-size:0.85rem; margin-top: 5px;">💰 ${t.amount.toFixed(2)} ${t.currency} | 📅 ${new Date(t.date).toLocaleString('ar-EG')}</div>
-                </div>
-            `).join('');
-        }
+                    <div style="font-size:0.85rem; margin-top: 5px;">💰 ${formatAmount(amountUSD)} | 📅 ${new Date(t.date).toLocaleString('ar-EG')}</div>
+                </div>`;
+            }).join('');
     }
 
     function updateAnalytics() {
         const totalDebtsUSD = debts.reduce((s, d) => s + convertToUSD(d.remainingAmount, d.currency), 0);
-        const todayExpenses = expenses.filter(e => new Date(e.date).toDateString() === new Date().toDateString())
+        const todayExpensesUSD = expenses.filter(e => new Date(e.date).toDateString() === new Date().toDateString())
             .reduce((s, e) => s + convertToUSD(e.amount, e.currency), 0);
-        const monthExpenses = expenses.filter(e => new Date(e.date).getMonth() === new Date().getMonth())
+        const monthExpensesUSD = expenses.filter(e => new Date(e.date).getMonth() === new Date().getMonth())
             .reduce((s, e) => s + convertToUSD(e.amount, e.currency), 0);
         const owedUSD = debts.filter(d => d.type === 'owed').reduce((s, d) => s + convertToUSD(d.remainingAmount, d.currency), 0);
         const net = totalDebtsUSD - owedUSD;
         
-        document.getElementById('totalDebtsSummary').innerHTML = `${totalDebtsUSD.toFixed(2)} USD`;
-        document.getElementById('totalExpensesToday').innerHTML = `${todayExpenses.toFixed(2)} USD`;
-        document.getElementById('totalExpensesMonth').innerHTML = `${monthExpenses.toFixed(2)} USD`;
-        document.getElementById('netPosition').innerHTML = `${net.toFixed(2)} USD`;
+        document.getElementById('totalDebtsSummary').innerHTML = formatAmount(totalDebtsUSD);
+        document.getElementById('totalExpensesToday').innerHTML = formatAmount(todayExpensesUSD);
+        document.getElementById('totalExpensesMonth').innerHTML = formatAmount(monthExpensesUSD);
+        document.getElementById('netPosition').innerHTML = formatAmount(Math.abs(net));
         
-        // مخطط المصروفات حسب التصنيف
         const categories = { food: 0, transport: 0, shopping: 0, bills: 0, entertainment: 0, other: 0 };
-        expenses.forEach(e => {
-            const usd = convertToUSD(e.amount, e.currency);
-            categories[e.category] = (categories[e.category] || 0) + usd;
-        });
+        expenses.forEach(e => { categories[e.category] += convertToUSD(e.amount, e.currency); });
         
         if (categoryChart) categoryChart.destroy();
-        const ctx = document.getElementById('expenseCategoryChart').getContext('2d');
-        categoryChart = new Chart(ctx, {
+        categoryChart = new Chart(document.getElementById('expenseCategoryChart'), {
             type: 'doughnut',
-            data: {
-                labels: ['طعام', 'مواصلات', 'تسوق', 'فواتير', 'ترفيه', 'أخرى'],
-                datasets: [{ data: Object.values(categories), backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#6b7280'] }]
-            },
+            data: { labels: ['طعام', 'مواصلات', 'تسوق', 'فواتير', 'ترفيه', 'أخرى'], 
+                    datasets: [{ data: Object.values(categories), backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#6b7280'] }] },
             options: { responsive: true, maintainAspectRatio: true }
         });
         
         if (debtVsExpenseChart) debtVsExpenseChart.destroy();
-        const ctx2 = document.getElementById('debtVsExpenseChart').getContext('2d');
-        debtVsExpenseChart = new Chart(ctx2, {
+        debtVsExpenseChart = new Chart(document.getElementById('debtVsExpenseChart'), {
             type: 'bar',
-            data: {
-                labels: ['إجمالي الديون', 'مصروفات اليوم'],
-                datasets: [{ data: [totalDebtsUSD, todayExpenses], backgroundColor: ['#ef4444', '#10b981'] }]
-            },
+            data: { labels: ['إجمالي الديون', 'مصروفات اليوم'], 
+                    datasets: [{ data: [totalDebtsUSD, todayExpensesUSD], backgroundColor: ['#ef4444', '#10b981'] }] },
             options: { responsive: true, maintainAspectRatio: true }
         });
         
         const insight = document.getElementById('insightText');
-        if (net > 0) insight.innerHTML = `⚠️ صافي الديون: ${net.toFixed(2)} USD، ننصح بتقليل المصروفات اليومية`;
-        else insight.innerHTML = `✅ ممتاز! صافي الديون لصالحك: ${Math.abs(net).toFixed(2)} USD`;
+        if (net > 0) insight.innerHTML = `⚠️ صافي الديون: ${formatAmount(net)}، ننصح بتقليل المصروفات اليومية`;
+        else insight.innerHTML = `✅ ممتاز! صافي الديون لصالحك: ${formatAmount(Math.abs(net))}`;
+    }
+
+    function generateReport() {
+        const reportType = document.getElementById('reportType').value;
+        
+        if (reportType === 'daily') {
+            const date = document.getElementById('reportDate').value;
+            if (!date) { alert('الرجاء اختيار التاريخ'); return; }
+            const targetDate = new Date(date);
+            const dayExpenses = expenses.filter(e => new Date(e.date).toDateString() === targetDate.toDateString());
+            const dayTransactions = transactions.filter(t => new Date(t.date).toDateString() === targetDate.toDateString());
+            const totalUSD = dayExpenses.reduce((s, e) => s + convertToUSD(e.amount, e.currency), 0);
+            
+            let html = `<h4>تقرير يوم ${targetDate.toLocaleDateString('ar-EG')}</h4>`;
+            html += `<p><strong>إجمالي المصروفات:</strong> ${formatAmount(totalUSD)}</p>`;
+            html += `<p><strong>عدد المعاملات:</strong> ${dayTransactions.length}</p>`;
+            html += `<h5>تفاصيل المصروفات:</h5>`;
+            dayExpenses.forEach(e => {
+                const amountUSD = convertToUSD(e.amount, e.currency);
+                html += `<div>• ${e.name} - ${formatAmount(amountUSD)} (${e.category})</div>`;
+            });
+            document.getElementById('reportContent').innerHTML = html;
+        } else {
+            const monthYear = document.getElementById('reportMonth').value;
+            if (!monthYear) { alert('الرجاء اختيار الشهر'); return; }
+            const [year, month] = monthYear.split('-');
+            const monthExpenses = expenses.filter(e => {
+                const d = new Date(e.date);
+                return d.getFullYear() == year && d.getMonth() == month - 1;
+            });
+            const totalUSD = monthExpenses.reduce((s, e) => s + convertToUSD(e.amount, e.currency), 0);
+            const categories = { food: 0, transport: 0, shopping: 0, bills: 0, entertainment: 0, other: 0 };
+            monthExpenses.forEach(e => { categories[e.category] += convertToUSD(e.amount, e.currency); });
+            
+            let html = `<h4>تقرير شهر ${month}/${year}</h4>`;
+            html += `<p><strong>إجمالي المصروفات:</strong> ${formatAmount(totalUSD)}</p>`;
+            html += `<p><strong>عدد المصروفات:</strong> ${monthExpenses.length}</p>`;
+            html += `<h5>تفاصيل حسب التصنيف:</h5>`;
+            for (let [cat, val] of Object.entries(categories)) {
+                if (val > 0) html += `<div>• ${cat}: ${formatAmount(val)}</div>`;
+            }
+            document.getElementById('reportContent').innerHTML = html;
+        }
+    }
+
+    function exportToExcel() {
+        const reportType = document.getElementById('reportType').value;
+        let data = [];
+        
+        if (reportType === 'daily') {
+            const date = document.getElementById('reportDate').value;
+            if (!date) { alert('الرجاء اختيار التاريخ'); return; }
+            const targetDate = new Date(date);
+            const dayExpenses = expenses.filter(e => new Date(e.date).toDateString() === targetDate.toDateString());
+            data = dayExpenses.map(e => ({
+                'التاريخ': new Date(e.date).toLocaleDateString('ar-EG'),
+                'البيان': e.name,
+                'المبلغ الأصلي': e.amount,
+                'العملة': e.currency,
+                'المبلغ بالدولار': convertToUSD(e.amount, e.currency).toFixed(2),
+                'التصنيف': e.category
+            }));
+        } else {
+            const monthYear = document.getElementById('reportMonth').value;
+            if (!monthYear) { alert('الرجاء اختيار الشهر'); return; }
+            const [year, month] = monthYear.split('-');
+            const monthExpenses = expenses.filter(e => {
+                const d = new Date(e.date);
+                return d.getFullYear() == year && d.getMonth() == month - 1;
+            });
+            data = monthExpenses.map(e => ({
+                'التاريخ': new Date(e.date).toLocaleDateString('ar-EG'),
+                'البيان': e.name,
+                'المبلغ الأصلي': e.amount,
+                'العملة': e.currency,
+                'المبلغ بالدولار': convertToUSD(e.amount, e.currency).toFixed(2),
+                'التصنيف': e.category
+            }));
+        }
+        
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'التقرير');
+        XLSX.writeFile(wb, `financial_report_${Date.now()}.xlsx`);
+    }
+
+    function exportToCSV() {
+        const reportType = document.getElementById('reportType').value;
+        let data = [];
+        
+        if (reportType === 'daily') {
+            const date = document.getElementById('reportDate').value;
+            if (!date) { alert('الرجاء اختيار التاريخ'); return; }
+            const targetDate = new Date(date);
+            const dayExpenses = expenses.filter(e => new Date(e.date).toDateString() === targetDate.toDateString());
+            data = dayExpenses.map(e => ({
+                'التاريخ': new Date(e.date).toLocaleDateString('ar-EG'),
+                'البيان': e.name,
+                'المبلغ الأصلي': e.amount,
+                'العملة': e.currency,
+                'المبلغ بالدولار': convertToUSD(e.amount, e.currency).toFixed(2),
+                'التصنيف': e.category
+            }));
+        } else {
+            const monthYear = document.getElementById('reportMonth').value;
+            if (!monthYear) { alert('الرجاء اختيار الشهر'); return; }
+            const [year, month] = monthYear.split('-');
+            const monthExpenses = expenses.filter(e => {
+                const d = new Date(e.date);
+                return d.getFullYear() == year && d.getMonth() == month - 1;
+            });
+            data = monthExpenses.map(e => ({
+                'التاريخ': new Date(e.date).toLocaleDateString('ar-EG'),
+                'البيان': e.name,
+                'المبلغ الأصلي': e.amount,
+                'العملة': e.currency,
+                'المبلغ بالدولار': convertToUSD(e.amount, e.currency).toFixed(2),
+                'التصنيف': e.category
+            }));
+        }
+        
+        const ws = XLSX.utils.json_to_sheet(data);
+        const csv = XLSX.utils.sheet_to_csv(ws);
+        const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `financial_report_${Date.now()}.csv`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+    }
+
+    function clearHistoryWithCode() {
+        if (confirm('هل أنت متأكد من مسح سجل المعاملات؟')) {
+            transactions = [];
+            renderAll();
+            alert('✅ تم مسح السجل بنجاح!');
+        }
     }
 
     function renderAll() {
@@ -945,9 +973,7 @@
 
     function updateLanguage() {
         const langToggle = document.getElementById('langToggleBtn');
-        if (langToggle) {
-            langToggle.innerHTML = currentLang === 'ar' ? '🇬🇧 EN' : '🇸🇦 عربي';
-        }
+        if (langToggle) langToggle.innerHTML = currentLang === 'ar' ? '🇬🇧 EN' : '🇸🇦 عربي';
     }
 
     function switchTab(tabName) {
@@ -957,9 +983,7 @@
         document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
     }
 
-    // ==================== ربط الأحداث وتسجيل الدخول ====================
     function initApp() {
-        // التحقق من وجود جلسة سابقة
         const lastUser = localStorage.getItem('lastLoggedInUser');
         if (lastUser) {
             currentUser = lastUser;
@@ -969,52 +993,40 @@
             document.getElementById('currentUserEmail').textContent = currentUser;
         }
         
-        // زر تسجيل الدخول
-        const loginBtn = document.getElementById('loginBtn');
-        if (loginBtn) {
-            loginBtn.onclick = function() {
-                const username = document.getElementById('usernameInput').value.trim();
-                if (!username) {
-                    alert("الرجاء إدخال البريد الإلكتروني");
-                    return;
-                }
-                if (!username.includes('@')) {
-                    alert("الرجاء إدخال بريد إلكتروني صحيح");
-                    return;
-                }
-                currentUser = username;
-                loadUserData(currentUser);
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-                document.getElementById('currentUserEmail').textContent = currentUser;
-                localStorage.setItem('lastLoggedInUser', currentUser);
-            };
-        }
+        document.getElementById('loginBtn').onclick = () => {
+            const username = document.getElementById('usernameInput').value.trim();
+            if (!username || !username.includes('@')) {
+                alert("الرجاء إدخال بريد إلكتروني صحيح");
+                return;
+            }
+            currentUser = username;
+            loadUserData(currentUser);
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('currentUserEmail').textContent = currentUser;
+        };
         
-        // أزرار التطبيق
         document.getElementById('addDebtBtn').onclick = addDebt;
         document.getElementById('addExpenseBtn').onclick = addExpense;
         document.getElementById('applyPaymentBtn').onclick = applyPayment;
         document.getElementById('clearHistoryBtn').onclick = clearHistoryWithCode;
-        
         document.getElementById('updateRateBtn').onclick = () => {
             usdToLbp = parseFloat(document.getElementById('usdToLbpRate').value);
             saveAll();
             renderAll();
         };
-        
-        document.getElementById('themeToggleBtn').onclick = () => {
-            document.body.classList.toggle('dark');
-            saveAll();
-        };
-        
+        document.getElementById('themeToggleBtn').onclick = () => document.body.classList.toggle('dark');
         document.getElementById('langToggleBtn').onclick = () => {
             currentLang = currentLang === 'ar' ? 'en' : 'ar';
             updateLanguage();
             renderAll();
         };
-        
-        document.getElementById('logoutBtn').onclick = logout;
+        document.getElementById('logoutBtn').onclick = () => {
+            currentUser = null;
+            localStorage.removeItem('lastLoggedInUser');
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+        };
         
         document.getElementById('searchDebts')?.addEventListener('input', renderDebtsList);
         document.getElementById('filterDebts')?.addEventListener('change', renderDebtsList);
@@ -1024,11 +1036,44 @@
         document.querySelectorAll('.tab').forEach(tab => {
             tab.onclick = () => switchTab(tab.dataset.tab);
         });
+        
+        document.querySelectorAll('.currency-option').forEach(opt => {
+            opt.onclick = () => {
+                document.querySelectorAll('.currency-option').forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+                displayCurrency = opt.dataset.currency;
+                renderAll();
+                generateReport();
+            };
+        });
+        
+        document.getElementById('reportType').onchange = () => {
+            const isDaily = document.getElementById('reportType').value === 'daily';
+            document.getElementById('dailyDatePicker').style.display = isDaily ? 'block' : 'none';
+            document.getElementById('monthlyPicker').style.display = isDaily ? 'none' : 'block';
+            if (isDaily && !document.getElementById('reportDate').value) {
+                document.getElementById('reportDate').value = new Date().toISOString().split('T')[0];
+            }
+            if (!isDaily && !document.getElementById('reportMonth').value) {
+                const now = new Date();
+                document.getElementById('reportMonth').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            }
+            generateReport();
+        };
+        
+        document.getElementById('reportDate').onchange = generateReport;
+        document.getElementById('reportMonth').onchange = generateReport;
+        document.getElementById('exportExcelBtn').onclick = exportToExcel;
+        document.getElementById('exportCSVBtn').onclick = exportToCSV;
+        
+        document.getElementById('reportDate').value = new Date().toISOString().split('T')[0];
+        const now = new Date();
+        document.getElementById('reportMonth').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        generateReport();
     }
     
     window.deleteDebt = deleteDebt;
     window.deleteExpense = deleteExpense;
-    
     initApp();
 </script>
 </body>
