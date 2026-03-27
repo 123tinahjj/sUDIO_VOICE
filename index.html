@@ -1,9 +1,11 @@
+
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>مدير المال الشامل | ديون + مصروفات + سجل</title>
+    <title>مدير المال الشامل | ديون + مصروفات + سجل متكامل</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -257,12 +259,19 @@
             color: var(--accent-primary);
         }
 
-        .delete-icon {
-            color: var(--danger);
+        .delete-icon, .payment-icon {
             cursor: pointer;
             padding: 8px;
             font-size: 1.2rem;
             transition: all 0.2s;
+        }
+        
+        .delete-icon {
+            color: var(--danger);
+        }
+        
+        .payment-icon {
+            color: var(--success);
         }
 
         .history-item {
@@ -405,6 +414,15 @@
             color: white;
         }
 
+        .paid-badge {
+            background: var(--success);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            display: inline-block;
+        }
+
         @media (max-width: 480px) {
             body { padding: 12px; }
             .card { padding: 16px; }
@@ -426,7 +444,7 @@
 <div id="mainApp" style="display: none;">
     <div class="container">
         <div class="app-header">
-            <h1><i class="fas fa-coins"></i> <span id="appTitle">مدير المال</span></h1>
+            <h1><i class="fas fa-coins"></i> <span id="appTitle">مدير المال الشامل</span></h1>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                 <div class="user-info" id="userInfoDisplay">
                     <i class="fas fa-user"></i>
@@ -514,7 +532,7 @@
                 <h3 style="margin-bottom: 16px;"><i class="fas fa-clock"></i> سجل جميع المعاملات</h3>
                 <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
                     <input type="text" id="searchHistory" placeholder="🔍 بحث في السجل" style="flex:1;">
-                    <select id="filterHistoryType"><option value="all">الكل</option><option value="debt">الديون</option><option value="expense">المصروفات</option></select>
+                    <select id="filterHistoryType"><option value="all">الكل</option><option value="debt">الديون</option><option value="expense">المصروفات</option><option value="payment">التسديدات</option></select>
                 </div>
                 <div id="historyList"></div>
                 <button id="clearHistoryBtn" class="btn-warning" style="margin-top: 12px;"><i class="fas fa-trash-alt"></i> مسح السجل</button>
@@ -523,7 +541,7 @@
 
         <div id="analyticsPanel" class="tab-content" style="display: none;">
             <div class="card">
-                <h3 style="margin-bottom: 16px;"><i class="fas fa-chart-pie"></i> التحليل المالي</h3>
+                <h3 style="margin-bottom: 16px;"><i class="fas fa-chart-pie"></i> التحليل المالي - الشهر الحالي</h3>
                 <div class="summary-grid">
                     <div class="summary-card"><i class="fas fa-hand-holding-usd"></i><div id="totalDebtsSummary">0</div><small>إجمالي الديون</small></div>
                     <div class="summary-card"><i class="fas fa-wallet"></i><div id="totalExpensesToday">0</div><small>مصروفات اليوم</small></div>
@@ -542,7 +560,7 @@
 
         <div id="reportsPanel" class="tab-content" style="display: none;">
             <div class="card">
-                <h3 style="margin-bottom: 16px;"><i class="fas fa-calendar-alt"></i> التقارير اليومية والشهرية</h3>
+                <h3 style="margin-bottom: 16px;"><i class="fas fa-calendar-alt"></i> التقارير التاريخية</h3>
                 
                 <div class="input-group">
                     <label>اختر التقرير</label>
@@ -627,13 +645,17 @@
         renderAll();
     }
 
-    function addTransaction(type, description, amount, currency) {
+    function addTransaction(type, description, amount, currency, details = {}) {
         transactions.unshift({
             id: Date.now(),
-            type, description, amount, currency,
-            date: new Date().toISOString()
+            type, 
+            description, 
+            amount, 
+            currency,
+            date: new Date().toISOString(),
+            ...details
         });
-        if (transactions.length > 500) transactions.pop();
+        if (transactions.length > 1000) transactions.pop();
         saveAll();
     }
 
@@ -650,9 +672,10 @@
         debts.push({
             id: Date.now(), name, originalAmount: amount, currency,
             remainingAmount: amount, note: note || "", type,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            isPaid: false
         });
-        addTransaction('debt', `${type === 'debt' ? 'دين جديد عليّ' : 'دين جديد لي'} - ${name}`, amount, currency);
+        addTransaction('debt', `${type === 'debt' ? 'دين جديد عليّ' : 'دين جديد لي'} - ${name}`, amount, currency, { debtorName: name, debtType: type });
         
         document.getElementById('debtorName').value = '';
         document.getElementById('amountValue').value = '';
@@ -673,7 +696,7 @@
             id: Date.now(), name, amount, currency, category,
             date: new Date().toISOString()
         });
-        addTransaction('expense', `مصروف: ${name}`, amount, currency);
+        addTransaction('expense', `مصروف: ${name}`, amount, currency, { category });
         
         document.getElementById('expenseName').value = '';
         document.getElementById('expenseAmount').value = '';
@@ -698,17 +721,42 @@
         
         if (amountInDebtCurr > debt.remainingAmount) amountInDebtCurr = debt.remainingAmount;
         
-        debt.remainingAmount -= amountInDebtCurr;
-        addTransaction('payment', `تسديد لـ ${debt.name}`, payAmount, payCurrency);
+        const paidAmount = amountInDebtCurr;
+        debt.remainingAmount -= paidAmount;
         
-        if (debt.remainingAmount < 0.01) debts = debts.filter(d => d.id !== id);
+        addTransaction('payment', `تسديد لـ ${debt.name}`, payAmount, payCurrency, { 
+            debtorName: debt.name, 
+            paidAmount: paidAmount,
+            remainingAfterPayment: debt.remainingAmount 
+        });
+        
+        if (debt.remainingAmount < 0.01) {
+            debt.isPaid = true;
+            debt.remainingAmount = 0;
+            addTransaction('payment', `✅ تم تسديد الدين بالكامل: ${debt.name}`, debt.originalAmount, debt.currency, { 
+                debtorName: debt.name, 
+                fullyPaid: true 
+            });
+        }
         
         document.getElementById('paymentAmount').value = '';
         renderAll();
     }
 
-    function deleteDebt(id) { debts = debts.filter(d => d.id !== id); renderAll(); }
-    function deleteExpense(id) { expenses = expenses.filter(e => e.id !== id); renderAll(); }
+    function deleteDebt(id) { 
+        const debt = debts.find(d => d.id === id);
+        if (debt && confirm(`هل أنت متأكد من حذف دين ${debt.name}؟`)) {
+            debts = debts.filter(d => d.id !== id); 
+            renderAll();
+        }
+    }
+    
+    function deleteExpense(id) { 
+        if (confirm('هل أنت متأكد من حذف هذا المصروف؟')) {
+            expenses = expenses.filter(e => e.id !== id); 
+            renderAll();
+        }
+    }
 
     function renderDebtsList() {
         const search = document.getElementById('searchDebts')?.value.toLowerCase() || '';
@@ -722,10 +770,14 @@
         container.innerHTML = filtered.length === 0 ? '<div class="list-item">لا توجد ديون</div>' :
             filtered.map(d => {
                 const amountUSD = convertToUSD(d.remainingAmount, d.currency);
+                const isFullyPaid = d.remainingAmount < 0.01;
                 return `
                 <div class="list-item">
                     <div class="item-info">
-                        <div class="item-title">${d.name} ${d.type === 'debt' ? '🔴' : '🟢'}</div>
+                        <div class="item-title">
+                            ${d.name} ${d.type === 'debt' ? '🔴' : '🟢'}
+                            ${isFullyPaid ? '<span class="paid-badge">✅ مدفوع بالكامل</span>' : ''}
+                        </div>
                         <div class="item-details">${d.note || 'لا توجد ملاحظات'}</div>
                     </div>
                     <div class="item-amount">${formatAmount(amountUSD)}</div>
@@ -737,7 +789,7 @@
         if (select) {
             const activeDebts = debts.filter(d => d.remainingAmount > 0 && d.type === 'debt');
             select.innerHTML = '<option value="">-- اختر ديناً --</option>' + 
-                activeDebts.map(d => `<option value="${d.id}">${d.name} - ${formatAmount(convertToUSD(d.remainingAmount, d.currency))}</option>`).join('');
+                activeDebts.map(d => `<option value="${d.id}">${d.name} - المتبقي: ${formatAmount(convertToUSD(d.remainingAmount, d.currency))}</option>`).join('');
         }
     }
 
@@ -752,8 +804,10 @@
         const container = document.getElementById('expensesList');
         if (!container) return;
         
-        container.innerHTML = expenses.length === 0 ? '<div class="list-item">لا توجد مصروفات</div>' :
-            expenses.slice(0, 50).map(e => {
+        const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        container.innerHTML = sortedExpenses.length === 0 ? '<div class="list-item">لا توجد مصروفات</div>' :
+            sortedExpenses.slice(0, 50).map(e => {
                 const amountUSD = convertToUSD(e.amount, e.currency);
                 return `
                 <div class="list-item">
@@ -777,23 +831,32 @@
         if (!container) return;
         
         container.innerHTML = filtered.length === 0 ? '<div class="history-item">لا توجد معاملات</div>' :
-            filtered.slice(0, 100).map(t => {
+            filtered.slice(0, 200).map(t => {
                 const amountUSD = convertToUSD(t.amount, t.currency);
+                const isPayment = t.type === 'payment';
+                const icon = isPayment ? '✅' : (t.type === 'debt' ? '💰' : '💸');
                 return `
                 <div class="history-item">
-                    <div><strong>${t.description}</strong></div>
+                    <div><strong>${icon} ${t.description}</strong></div>
                     <div style="font-size:0.85rem; margin-top: 5px;">💰 ${formatAmount(amountUSD)} | 📅 ${new Date(t.date).toLocaleString('ar-EG')}</div>
+                    ${t.details?.fullyPaid ? '<div style="color: var(--success); font-size:0.8rem;">✓ تم التسديد الكامل</div>' : ''}
                 </div>`;
             }).join('');
     }
 
     function updateAnalytics() {
-        const totalDebtsUSD = debts.reduce((s, d) => s + convertToUSD(d.remainingAmount, d.currency), 0);
-        const todayExpensesUSD = expenses.filter(e => new Date(e.date).toDateString() === new Date().toDateString())
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        
+        const totalDebtsUSD = debts.filter(d => d.remainingAmount > 0).reduce((s, d) => s + convertToUSD(d.remainingAmount, d.currency), 0);
+        const todayExpensesUSD = expenses.filter(e => new Date(e.date).toDateString() === now.toDateString())
             .reduce((s, e) => s + convertToUSD(e.amount, e.currency), 0);
-        const monthExpensesUSD = expenses.filter(e => new Date(e.date).getMonth() === new Date().getMonth())
-            .reduce((s, e) => s + convertToUSD(e.amount, e.currency), 0);
-        const owedUSD = debts.filter(d => d.type === 'owed').reduce((s, d) => s + convertToUSD(d.remainingAmount, d.currency), 0);
+        const monthExpensesUSD = expenses.filter(e => {
+            const d = new Date(e.date);
+            return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        }).reduce((s, e) => s + convertToUSD(e.amount, e.currency), 0);
+        const owedUSD = debts.filter(d => d.type === 'owed' && d.remainingAmount > 0).reduce((s, d) => s + convertToUSD(d.remainingAmount, d.currency), 0);
         const net = totalDebtsUSD - owedUSD;
         
         document.getElementById('totalDebtsSummary').innerHTML = formatAmount(totalDebtsUSD);
@@ -802,7 +865,10 @@
         document.getElementById('netPosition').innerHTML = formatAmount(Math.abs(net));
         
         const categories = { food: 0, transport: 0, shopping: 0, bills: 0, entertainment: 0, other: 0 };
-        expenses.forEach(e => { categories[e.category] += convertToUSD(e.amount, e.currency); });
+        expenses.filter(e => {
+            const d = new Date(e.date);
+            return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        }).forEach(e => { categories[e.category] += convertToUSD(e.amount, e.currency); });
         
         if (categoryChart) categoryChart.destroy();
         categoryChart = new Chart(document.getElementById('expenseCategoryChart'), {
@@ -833,13 +899,12 @@
             if (!date) { alert('الرجاء اختيار التاريخ'); return; }
             const targetDate = new Date(date);
             const dayExpenses = expenses.filter(e => new Date(e.date).toDateString() === targetDate.toDateString());
-            const dayTransactions = transactions.filter(t => new Date(t.date).toDateString() === targetDate.toDateString());
             const totalUSD = dayExpenses.reduce((s, e) => s + convertToUSD(e.amount, e.currency), 0);
             
-            let html = `<h4>تقرير يوم ${targetDate.toLocaleDateString('ar-EG')}</h4>`;
-            html += `<p><strong>إجمالي المصروفات:</strong> ${formatAmount(totalUSD)}</p>`;
-            html += `<p><strong>عدد المعاملات:</strong> ${dayTransactions.length}</p>`;
-            html += `<h5>تفاصيل المصروفات:</h5>`;
+            let html = `<h4>📅 تقرير يوم ${targetDate.toLocaleDateString('ar-EG')}</h4>`;
+            html += `<p><strong>💰 إجمالي المصروفات:</strong> ${formatAmount(totalUSD)}</p>`;
+            html += `<p><strong>📊 عدد المصروفات:</strong> ${dayExpenses.length}</p>`;
+            html += `<h5>📋 تفاصيل المصروفات:</h5>`;
             dayExpenses.forEach(e => {
                 const amountUSD = convertToUSD(e.amount, e.currency);
                 html += `<div>• ${e.name} - ${formatAmount(amountUSD)} (${e.category})</div>`;
@@ -857,10 +922,10 @@
             const categories = { food: 0, transport: 0, shopping: 0, bills: 0, entertainment: 0, other: 0 };
             monthExpenses.forEach(e => { categories[e.category] += convertToUSD(e.amount, e.currency); });
             
-            let html = `<h4>تقرير شهر ${month}/${year}</h4>`;
-            html += `<p><strong>إجمالي المصروفات:</strong> ${formatAmount(totalUSD)}</p>`;
-            html += `<p><strong>عدد المصروفات:</strong> ${monthExpenses.length}</p>`;
-            html += `<h5>تفاصيل حسب التصنيف:</h5>`;
+            let html = `<h4>📆 تقرير شهر ${month}/${year}</h4>`;
+            html += `<p><strong>💰 إجمالي المصروفات:</strong> ${formatAmount(totalUSD)}</p>`;
+            html += `<p><strong>📊 عدد المصروفات:</strong> ${monthExpenses.length}</p>`;
+            html += `<h5>📋 تفاصيل حسب التصنيف:</h5>`;
             for (let [cat, val] of Object.entries(categories)) {
                 if (val > 0) html += `<div>• ${cat}: ${formatAmount(val)}</div>`;
             }
@@ -955,10 +1020,15 @@
     }
 
     function clearHistoryWithCode() {
-        if (confirm('هل أنت متأكد من مسح سجل المعاملات؟')) {
-            transactions = [];
-            renderAll();
-            alert('✅ تم مسح السجل بنجاح!');
+        const code = prompt('⚠️ عملية خطيرة! أدخل كود التأكيد 1234 لمسح السجل بالكامل:');
+        if (code === '1234') {
+            if (confirm('هل أنت متأكد تماماً من مسح سجل المعاملات بالكامل؟ هذا الإجراء لا يمكن التراجع عنه!')) {
+                transactions = [];
+                renderAll();
+                alert('✅ تم مسح السجل بنجاح!');
+            }
+        } else if (code !== null) {
+            alert('❌ كود غير صحيح! لم يتم مسح السجل.');
         }
     }
 
@@ -1078,3 +1148,4 @@
 </script>
 </body>
 </html>
+```
