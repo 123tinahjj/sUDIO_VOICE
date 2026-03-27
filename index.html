@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -8,6 +6,7 @@
     <title>مدير المال الشامل | ديون + مصروفات + سجل متكامل</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * {
@@ -225,6 +224,10 @@
             background: var(--warning);
         }
 
+        .btn-secondary {
+            background: var(--accent-secondary);
+        }
+
         .list-item {
             background: var(--bg-primary);
             border-radius: 16px;
@@ -259,7 +262,7 @@
             color: var(--accent-primary);
         }
 
-        .delete-icon, .payment-icon {
+        .delete-icon, .payment-icon, .edit-icon {
             cursor: pointer;
             padding: 8px;
             font-size: 1.2rem;
@@ -272,6 +275,10 @@
         
         .payment-icon {
             color: var(--success);
+        }
+
+        .edit-icon {
+            color: var(--accent-secondary);
         }
 
         .history-item {
@@ -423,6 +430,35 @@
             display: inline-block;
         }
 
+        .stats-sidebar {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .budget-edit {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .budget-edit input {
+            flex: 1;
+        }
+
+        .budget-edit button {
+            width: auto;
+            padding: 8px 16px;
+        }
+
         @media (max-width: 480px) {
             body { padding: 12px; }
             .card { padding: 16px; }
@@ -544,13 +580,26 @@
                 <h3 style="margin-bottom: 16px;"><i class="fas fa-chart-pie"></i> التحليل المالي - الشهر الحالي</h3>
                 <div class="summary-grid">
                     <div class="summary-card"><i class="fas fa-hand-holding-usd"></i><div id="totalDebtsSummary">0</div><small>إجمالي الديون</small></div>
-                    <div class="summary-card"><i class="fas fa-wallet"></i><div id="totalExpensesToday">0</div><small>مصروفات اليوم</small></div>
-                    <div class="summary-card"><i class="fas fa-chart-line"></i><div id="totalExpensesMonth">0</div><small>هذا الشهر</small></div>
-                    <div class="summary-card"><i class="fas fa-balance-scale"></i><div id="netPosition">0</div><small>صافي المركز</small></div>
+                    <div class="summary-card"><i class="fas fa-wallet"></i><div id="totalExpensesMonth">0</div><small>مصروفات الشهر</small></div>
+                    <div class="summary-card"><i class="fas fa-money-bill-wave"></i><div id="totalPaymentsMonth">0</div><small>المدفوعات الشهرية</small></div>
+                    <div class="summary-card"><i class="fas fa-chart-line"></i><div id="monthlyRemaining">0</div><small>الباقي من الميزانية</small></div>
                 </div>
+                
+                <div class="stats-sidebar">
+                    <h4><i class="fas fa-chart-bar"></i> إحصائيات إضافية</h4>
+                    <div class="stat-item"><span>💰 إجمالي الديون (عليّ):</span><span id="totalDebtsOwed">0</span></div>
+                    <div class="stat-item"><span>💵 إجمالي الديون (لي):</span><span id="totalDebtsToMe">0</span></div>
+                    <div class="stat-item"><span>📊 صافي المركز:</span><span id="netPosition">0</span></div>
+                    <div class="budget-edit">
+                        <input type="number" id="monthlyBudgetInput" placeholder="الميزانية الشهرية بالدولار" step="100">
+                        <button id="setBudgetBtn">تعديل الميزانية</button>
+                    </div>
+                </div>
+                
                 <div class="charts-container">
                     <canvas id="expenseCategoryChart"></canvas>
                     <canvas id="debtVsExpenseChart"></canvas>
+                    <canvas id="paymentTrendChart"></canvas>
                 </div>
                 <div class="insight" style="background: var(--accent-primary); color: white; border-radius: 16px; padding: 16px; margin-top: 16px;">
                     <i class="fas fa-lightbulb"></i> <span id="insightText">تحليل ذكي...</span>
@@ -583,8 +632,11 @@
                 <div id="reportContent" style="background: var(--bg-primary); border-radius: 16px; padding: 16px; margin: 16px 0;"></div>
                 
                 <div class="report-buttons">
-                    <button id="exportExcelBtn"><i class="fas fa-file-excel"></i> تصدير Excel</button>
-                    <button id="exportCSVBtn"><i class="fas fa-file-csv"></i> تصدير CSV</button>
+                    <button id="exportExcelBtn"><i class="fas fa-file-excel"></i> Excel</button>
+                    <button id="exportCSVBtn"><i class="fas fa-file-csv"></i> CSV</button>
+                    <button id="exportPDFBtn"><i class="fas fa-file-pdf"></i> PDF</button>
+                    <button id="exportJSONBtn"><i class="fas fa-database"></i> JSON</button>
+                    <button id="printReportBtn"><i class="fas fa-print"></i> طباعة</button>
                 </div>
             </div>
         </div>
@@ -599,8 +651,10 @@
     let usdToLbp = 89500;
     let currentLang = 'ar';
     let displayCurrency = 'USD';
+    let monthlyBudget = 1000;
     let categoryChart = null;
     let debtVsExpenseChart = null;
+    let paymentTrendChart = null;
 
     function convertToUSD(amount, currency) {
         return currency === 'USD' ? amount : amount / usdToLbp;
@@ -619,9 +673,16 @@
         }
     }
 
+    function verifyCode(action) {
+        const code = prompt(`⚠️ تأكيد أمني\nلإجراء عملية: ${action}\nالرجاء إدخال كود التأكيد (1234):`);
+        if (code === '1234') return true;
+        if (code !== null) alert('❌ كود غير صحيح! العملية ملغية.');
+        return false;
+    }
+
     function saveAll() {
         if (!currentUser) return;
-        const data = { debts, expenses, transactions, usdToLbp, lang: currentLang };
+        const data = { debts, expenses, transactions, usdToLbp, lang: currentLang, monthlyBudget };
         localStorage.setItem(`debtManager_${currentUser}`, JSON.stringify(data));
         localStorage.setItem('lastLoggedInUser', currentUser);
     }
@@ -635,12 +696,15 @@
             transactions = data.transactions || [];
             usdToLbp = data.usdToLbp || 89500;
             if (data.lang) currentLang = data.lang;
+            monthlyBudget = data.monthlyBudget || 1000;
         } else {
             debts = [];
             expenses = [];
             transactions = [];
+            monthlyBudget = 1000;
         }
         document.getElementById('usdToLbpRate').value = usdToLbp;
+        document.getElementById('monthlyBudgetInput').value = monthlyBudget;
         updateLanguage();
         renderAll();
     }
@@ -655,7 +719,7 @@
             date: new Date().toISOString(),
             ...details
         });
-        if (transactions.length > 1000) transactions.pop();
+        if (transactions.length > 2000) transactions.pop();
         saveAll();
     }
 
@@ -683,6 +747,24 @@
         renderAll();
     }
 
+    function markDebtAsPaid(debtId) {
+        if (!verifyCode('تسجيل الدين كمدفوع بالكامل')) return;
+        
+        const debt = debts.find(d => d.id === debtId);
+        if (!debt) return;
+        
+        if (debt.remainingAmount > 0) {
+            addTransaction('payment', `✅ تسديد كامل لـ ${debt.name}`, debt.remainingAmount, debt.currency, { 
+                debtorName: debt.name, 
+                fullyPaid: true,
+                paidAmount: debt.remainingAmount
+            });
+            debt.remainingAmount = 0;
+            debt.isPaid = true;
+            renderAll();
+        }
+    }
+
     function addExpense() {
         const name = document.getElementById('expenseName').value.trim();
         const amount = parseFloat(document.getElementById('expenseAmount').value);
@@ -701,6 +783,27 @@
         document.getElementById('expenseName').value = '';
         document.getElementById('expenseAmount').value = '';
         renderAll();
+    }
+
+    function editExpense(expenseId) {
+        if (!verifyCode('تعديل المصروف')) return;
+        
+        const expense = expenses.find(e => e.id === expenseId);
+        if (!expense) return;
+        
+        const newAmount = prompt(`تعديل مبلغ المصروف: ${expense.name}\nالمبلغ الحالي: ${expense.amount} ${expense.currency}\nأدخل المبلغ الجديد:`, expense.amount);
+        if (newAmount && !isNaN(parseFloat(newAmount))) {
+            const oldAmount = expense.amount;
+            expense.amount = parseFloat(newAmount);
+            addTransaction('edit', `تعديل مصروف: ${expense.name} من ${oldAmount} إلى ${expense.amount}`, expense.amount, expense.currency, { oldAmount });
+            renderAll();
+        }
+        
+        const newCategory = prompt(`تعديل تصنيف المصروف: ${expense.name}\nالتصنيف الحالي: ${expense.category}\nأدخل التصنيف الجديد (food/transport/shopping/bills/entertainment/other):`, expense.category);
+        if (newCategory && ['food', 'transport', 'shopping', 'bills', 'entertainment', 'other'].includes(newCategory)) {
+            expense.category = newCategory;
+            renderAll();
+        }
     }
 
     function applyPayment() {
@@ -744,6 +847,7 @@
     }
 
     function deleteDebt(id) { 
+        if (!verifyCode('حذف الدين')) return;
         const debt = debts.find(d => d.id === id);
         if (debt && confirm(`هل أنت متأكد من حذف دين ${debt.name}؟`)) {
             debts = debts.filter(d => d.id !== id); 
@@ -752,6 +856,7 @@
     }
     
     function deleteExpense(id) { 
+        if (!verifyCode('حذف المصروف')) return;
         if (confirm('هل أنت متأكد من حذف هذا المصروف؟')) {
             expenses = expenses.filter(e => e.id !== id); 
             renderAll();
@@ -761,27 +866,28 @@
     function renderDebtsList() {
         const search = document.getElementById('searchDebts')?.value.toLowerCase() || '';
         const filter = document.getElementById('filterDebts')?.value || 'all';
-        let filtered = debts.filter(d => d.name.toLowerCase().includes(search));
+        let filtered = debts.filter(d => !d.isPaid && d.name.toLowerCase().includes(search));
         if (filter !== 'all') filtered = filtered.filter(d => d.type === filter);
         
         const container = document.getElementById('debtsList');
         if (!container) return;
         
-        container.innerHTML = filtered.length === 0 ? '<div class="list-item">لا توجد ديون</div>' :
+        container.innerHTML = filtered.length === 0 ? '<div class="list-item">لا توجد ديون غير مسددة</div>' :
             filtered.map(d => {
                 const amountUSD = convertToUSD(d.remainingAmount, d.currency);
-                const isFullyPaid = d.remainingAmount < 0.01;
                 return `
                 <div class="list-item">
                     <div class="item-info">
                         <div class="item-title">
                             ${d.name} ${d.type === 'debt' ? '🔴' : '🟢'}
-                            ${isFullyPaid ? '<span class="paid-badge">✅ مدفوع بالكامل</span>' : ''}
                         </div>
                         <div class="item-details">${d.note || 'لا توجد ملاحظات'}</div>
                     </div>
                     <div class="item-amount">${formatAmount(amountUSD)}</div>
-                    <i class="fas fa-trash delete-icon" onclick="window.deleteDebt(${d.id})"></i>
+                    <div style="display: flex; gap: 5px;">
+                        <i class="fas fa-check-circle payment-icon" onclick="window.markDebtAsPaid(${d.id})" title="تم الدفع"></i>
+                        <i class="fas fa-trash delete-icon" onclick="window.deleteDebt(${d.id})"></i>
+                    </div>
                 </div>`;
             }).join('');
         
@@ -804,19 +910,22 @@
         const container = document.getElementById('expensesList');
         if (!container) return;
         
-        const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
+        const sortedExpenses = [...todayExpenses].sort((a, b) => new Date(b.date) - new Date(a.date));
         
-        container.innerHTML = sortedExpenses.length === 0 ? '<div class="list-item">لا توجد مصروفات</div>' :
-            sortedExpenses.slice(0, 50).map(e => {
+        container.innerHTML = sortedExpenses.length === 0 ? '<div class="list-item">لا توجد مصروفات اليوم</div>' :
+            sortedExpenses.map(e => {
                 const amountUSD = convertToUSD(e.amount, e.currency);
                 return `
                 <div class="list-item">
                     <div class="item-info">
                         <div class="item-title">${e.name}</div>
-                        <div class="item-details">${e.category} | ${new Date(e.date).toLocaleDateString('ar-EG')}</div>
+                        <div class="item-details">${e.category}</div>
                     </div>
                     <div class="item-amount">${formatAmount(amountUSD)}</div>
-                    <i class="fas fa-trash delete-icon" onclick="window.deleteExpense(${e.id})"></i>
+                    <div style="display: flex; gap: 5px;">
+                        <i class="fas fa-edit edit-icon" onclick="window.editExpense(${e.id})" title="تعديل"></i>
+                        <i class="fas fa-trash delete-icon" onclick="window.deleteExpense(${e.id})"></i>
+                    </div>
                 </div>`;
             }).join('');
     }
@@ -834,7 +943,7 @@
             filtered.slice(0, 200).map(t => {
                 const amountUSD = convertToUSD(t.amount, t.currency);
                 const isPayment = t.type === 'payment';
-                const icon = isPayment ? '✅' : (t.type === 'debt' ? '💰' : '💸');
+                const icon = isPayment ? '✅' : (t.type === 'debt' ? '💰' : (t.type === 'expense' ? '💸' : '✏️'));
                 return `
                 <div class="history-item">
                     <div><strong>${icon} ${t.description}</strong></div>
@@ -850,19 +959,29 @@
         const currentYear = now.getFullYear();
         
         const totalDebtsUSD = debts.filter(d => d.remainingAmount > 0).reduce((s, d) => s + convertToUSD(d.remainingAmount, d.currency), 0);
-        const todayExpensesUSD = expenses.filter(e => new Date(e.date).toDateString() === now.toDateString())
-            .reduce((s, e) => s + convertToUSD(e.amount, e.currency), 0);
+        const debtsOwedUSD = debts.filter(d => d.type === 'debt' && d.remainingAmount > 0).reduce((s, d) => s + convertToUSD(d.remainingAmount, d.currency), 0);
+        const debtsToMeUSD = debts.filter(d => d.type === 'owed' && d.remainingAmount > 0).reduce((s, d) => s + convertToUSD(d.remainingAmount, d.currency), 0);
+        
         const monthExpensesUSD = expenses.filter(e => {
             const d = new Date(e.date);
             return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
         }).reduce((s, e) => s + convertToUSD(e.amount, e.currency), 0);
-        const owedUSD = debts.filter(d => d.type === 'owed' && d.remainingAmount > 0).reduce((s, d) => s + convertToUSD(d.remainingAmount, d.currency), 0);
-        const net = totalDebtsUSD - owedUSD;
+        
+        const monthPaymentsUSD = transactions.filter(t => {
+            const d = new Date(t.date);
+            return t.type === 'payment' && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        }).reduce((s, t) => s + convertToUSD(t.amount, t.currency), 0);
+        
+        const remaining = monthlyBudget - monthExpensesUSD;
+        const netPosition = debtsToMeUSD - debtsOwedUSD;
         
         document.getElementById('totalDebtsSummary').innerHTML = formatAmount(totalDebtsUSD);
-        document.getElementById('totalExpensesToday').innerHTML = formatAmount(todayExpensesUSD);
         document.getElementById('totalExpensesMonth').innerHTML = formatAmount(monthExpensesUSD);
-        document.getElementById('netPosition').innerHTML = formatAmount(Math.abs(net));
+        document.getElementById('totalPaymentsMonth').innerHTML = formatAmount(monthPaymentsUSD);
+        document.getElementById('monthlyRemaining').innerHTML = formatAmount(Math.max(0, remaining));
+        document.getElementById('totalDebtsOwed').innerHTML = formatAmount(debtsOwedUSD);
+        document.getElementById('totalDebtsToMe').innerHTML = formatAmount(debtsToMeUSD);
+        document.getElementById('netPosition').innerHTML = formatAmount(Math.abs(netPosition));
         
         const categories = { food: 0, transport: 0, shopping: 0, bills: 0, entertainment: 0, other: 0 };
         expenses.filter(e => {
@@ -881,14 +1000,32 @@
         if (debtVsExpenseChart) debtVsExpenseChart.destroy();
         debtVsExpenseChart = new Chart(document.getElementById('debtVsExpenseChart'), {
             type: 'bar',
-            data: { labels: ['إجمالي الديون', 'مصروفات اليوم'], 
-                    datasets: [{ data: [totalDebtsUSD, todayExpensesUSD], backgroundColor: ['#ef4444', '#10b981'] }] },
+            data: { labels: ['إجمالي الديون', 'مصروفات الشهر'], 
+                    datasets: [{ data: [totalDebtsUSD, monthExpensesUSD], backgroundColor: ['#ef4444', '#10b981'] }] },
+            options: { responsive: true, maintainAspectRatio: true }
+        });
+        
+        const paymentData = [];
+        for (let i = 0; i < 12; i++) {
+            const monthPayments = transactions.filter(t => {
+                const d = new Date(t.date);
+                return t.type === 'payment' && d.getMonth() === i && d.getFullYear() === currentYear;
+            }).reduce((s, t) => s + convertToUSD(t.amount, t.currency), 0);
+            paymentData.push(monthPayments);
+        }
+        
+        if (paymentTrendChart) paymentTrendChart.destroy();
+        paymentTrendChart = new Chart(document.getElementById('paymentTrendChart'), {
+            type: 'line',
+            data: { labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
+                    datasets: [{ data: paymentData, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true }] },
             options: { responsive: true, maintainAspectRatio: true }
         });
         
         const insight = document.getElementById('insightText');
-        if (net > 0) insight.innerHTML = `⚠️ صافي الديون: ${formatAmount(net)}، ننصح بتقليل المصروفات اليومية`;
-        else insight.innerHTML = `✅ ممتاز! صافي الديون لصالحك: ${formatAmount(Math.abs(net))}`;
+        if (remaining < 0) insight.innerHTML = `⚠️ تجاوزت الميزانية بمبلغ ${formatAmount(Math.abs(remaining))}، ننصح بتقليل المصروفات`;
+        else if (netPosition > 0) insight.innerHTML = `💡 صافي الديون عليك: ${formatAmount(netPosition)}، حاول تسديد الديون أولاً`;
+        else insight.innerHTML = `✅ ممتاز! أنت ضمن الميزانية، الباقي ${formatAmount(remaining)}`;
     }
 
     function generateReport() {
@@ -919,11 +1056,17 @@
                 return d.getFullYear() == year && d.getMonth() == month - 1;
             });
             const totalUSD = monthExpenses.reduce((s, e) => s + convertToUSD(e.amount, e.currency), 0);
+            const monthPayments = transactions.filter(t => {
+                const d = new Date(t.date);
+                return t.type === 'payment' && d.getFullYear() == year && d.getMonth() == month - 1;
+            }).reduce((s, t) => s + convertToUSD(t.amount, t.currency), 0);
+            
             const categories = { food: 0, transport: 0, shopping: 0, bills: 0, entertainment: 0, other: 0 };
             monthExpenses.forEach(e => { categories[e.category] += convertToUSD(e.amount, e.currency); });
             
             let html = `<h4>📆 تقرير شهر ${month}/${year}</h4>`;
             html += `<p><strong>💰 إجمالي المصروفات:</strong> ${formatAmount(totalUSD)}</p>`;
+            html += `<p><strong>💵 إجمالي المدفوعات:</strong> ${formatAmount(monthPayments)}</p>`;
             html += `<p><strong>📊 عدد المصروفات:</strong> ${monthExpenses.length}</p>`;
             html += `<h5>📋 تفاصيل حسب التصنيف:</h5>`;
             for (let [cat, val] of Object.entries(categories)) {
@@ -1019,16 +1162,67 @@
         URL.revokeObjectURL(link.href);
     }
 
+    function exportToPDF() {
+        const reportContent = document.getElementById('reportContent').innerHTML;
+        const win = window.open('', '_blank');
+        win.document.write(`
+            <html dir="rtl">
+            <head><title>التقرير المالي</title>
+            <style>
+                body { font-family: 'Cairo', sans-serif; padding: 20px; }
+                .report { max-width: 800px; margin: auto; }
+                h4 { color: #10b981; }
+            </style>
+            </head>
+            <body>
+            <div class="report">${reportContent}</div>
+            </body>
+            </html>
+        `);
+        win.document.close();
+        win.print();
+    }
+
+    function exportToJSON() {
+        if (!verifyCode('تصدير JSON')) return;
+        
+        const exportData = {
+            user: currentUser,
+            exportDate: new Date().toISOString(),
+            debts: debts,
+            expenses: expenses,
+            transactions: transactions,
+            settings: { usdToLbp, monthlyBudget }
+        };
+        
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `backup_${currentUser}_${Date.now()}.json`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        alert('✅ تم تصدير النسخة الاحتياطية بنجاح!');
+    }
+
+    function setMonthlyBudget() {
+        const newBudget = parseFloat(document.getElementById('monthlyBudgetInput').value);
+        if (!isNaN(newBudget) && newBudget > 0) {
+            monthlyBudget = newBudget;
+            saveAll();
+            updateAnalytics();
+            alert(`✅ تم تحديث الميزانية الشهرية إلى ${formatAmount(monthlyBudget)}`);
+        } else {
+            alert('الرجاء إدخال مبلغ صحيح للميزانية');
+        }
+    }
+
     function clearHistoryWithCode() {
-        const code = prompt('⚠️ عملية خطيرة! أدخل كود التأكيد 1234 لمسح السجل بالكامل:');
-        if (code === '1234') {
-            if (confirm('هل أنت متأكد تماماً من مسح سجل المعاملات بالكامل؟ هذا الإجراء لا يمكن التراجع عنه!')) {
-                transactions = [];
-                renderAll();
-                alert('✅ تم مسح السجل بنجاح!');
-            }
-        } else if (code !== null) {
-            alert('❌ كود غير صحيح! لم يتم مسح السجل.');
+        if (!verifyCode('مسح السجل بالكامل')) return;
+        if (confirm('هل أنت متأكد تماماً من مسح سجل المعاملات بالكامل؟ هذا الإجراء لا يمكن التراجع عنه!')) {
+            transactions = [];
+            renderAll();
+            alert('✅ تم مسح السجل بنجاح!');
         }
     }
 
@@ -1097,6 +1291,7 @@
             document.getElementById('mainApp').style.display = 'none';
             document.getElementById('loginScreen').style.display = 'flex';
         };
+        document.getElementById('setBudgetBtn').onclick = setMonthlyBudget;
         
         document.getElementById('searchDebts')?.addEventListener('input', renderDebtsList);
         document.getElementById('filterDebts')?.addEventListener('change', renderDebtsList);
@@ -1135,6 +1330,27 @@
         document.getElementById('reportMonth').onchange = generateReport;
         document.getElementById('exportExcelBtn').onclick = exportToExcel;
         document.getElementById('exportCSVBtn').onclick = exportToCSV;
+        document.getElementById('exportPDFBtn').onclick = exportToPDF;
+        document.getElementById('exportJSONBtn').onclick = exportToJSON;
+        document.getElementById('printReportBtn').onclick = () => {
+            const reportContent = document.getElementById('reportContent').innerHTML;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html dir="rtl">
+                <head><title>تقرير مالي</title>
+                <style>
+                    body { font-family: 'Cairo', sans-serif; padding: 20px; }
+                    .report { max-width: 800px; margin: auto; }
+                </style>
+                </head>
+                <body>
+                <div class="report">${reportContent}</div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        };
         
         document.getElementById('reportDate').value = new Date().toISOString().split('T')[0];
         const now = new Date();
@@ -1144,6 +1360,8 @@
     
     window.deleteDebt = deleteDebt;
     window.deleteExpense = deleteExpense;
+    window.markDebtAsPaid = markDebtAsPaid;
+    window.editExpense = editExpense;
     initApp();
 </script>
 </body>
