@@ -1,6 +1,4 @@
 
-```html
-<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -10,542 +8,152 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', 'Tahoma', 'Cairo', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', 'Tahoma', 'Cairo', sans-serif; }
         :root {
-            --bg-primary: #f8fafc;
-            --bg-secondary: #ffffff;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --card-bg: #ffffff;
-            --border-color: #e2e8f0;
-            --accent-primary: #10b981;
-            --accent-secondary: #3b82f6;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --success: #10b981;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
-            --radius: 20px;
+            --bg-primary: #f8fafc; --bg-secondary: #ffffff; --text-primary: #0f172a;
+            --text-secondary: #475569; --card-bg: #ffffff; --border-color: #e2e8f0;
+            --accent-primary: #10b981; --accent-secondary: #3b82f6; --danger: #ef4444;
+            --warning: #f59e0b; --success: #10b981; --radius: 20px;
         }
-
         body.dark {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --card-bg: #1e293b;
-            --border-color: #334155;
+            --bg-primary: #0f172a; --bg-secondary: #1e293b; --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1; --card-bg: #1e293b; --border-color: #334155;
         }
-
-        body {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            padding: 16px;
-            min-height: 100vh;
-            transition: all 0.3s ease;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 4px;
-        }
-
-        @media (min-width: 768px) {
-            body {
-                padding: 24px;
-            }
-            
-            .container {
-                max-width: 1400px;
-            }
-            
-            .tabs {
-                max-width: 700px;
-                margin: 0 auto 20px auto;
-            }
-            
-            .card:hover {
-                transform: translateY(-2px);
-                box-shadow: var(--shadow-lg);
-            }
-            
-            .summary-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            
-            .charts-container {
-                grid-template-columns: 1fr 1fr;
-                gap: 24px;
-            }
-        }
-
-        @media (max-width: 767px) {
-            .summary-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .charts-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border-color);
-        }
-
-        .app-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        h1 {
-            font-size: 1.5rem;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .icon-btn {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            padding: 10px 14px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            color: var(--text-primary);
-            transition: all 0.2s;
-        }
-
-        .icon-btn:hover {
-            transform: scale(1.05);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            background: var(--card-bg);
-            padding: 6px;
-            border-radius: 60px;
-            border: 1px solid var(--border-color);
-            flex-wrap: wrap;
-        }
-
-        .tab {
-            flex: 1;
-            text-align: center;
-            padding: 12px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-            background: transparent;
-            color: var(--text-secondary);
-        }
-
-        .tab.active {
-            background: var(--accent-primary);
-            color: white;
-        }
-
-        .input-group {
-            margin-bottom: 16px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            font-size: 1rem;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            transition: all 0.2s;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 16px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: var(--accent-primary);
-            color: white;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-danger {
-            background: var(--danger);
-        }
-
-        .btn-warning {
-            background: var(--warning);
-        }
-
-        .list-item {
-            background: var(--bg-primary);
-            border-radius: 16px;
-            padding: 14px;
-            margin-bottom: 10px;
-            border: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .item-info {
-            flex: 1;
-        }
-
-        .item-title {
-            font-weight: 700;
-            font-size: 1rem;
-        }
-
-        .item-details {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-
-        .item-amount {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--accent-primary);
-        }
-
-        .delete-icon, .payment-icon {
-            cursor: pointer;
-            padding: 8px;
-            font-size: 1.2rem;
-            transition: all 0.2s;
-        }
-        
-        .delete-icon {
-            color: var(--danger);
-        }
-        
-        .payment-icon {
-            color: var(--success);
-        }
-
-        .history-item {
-            background: var(--bg-primary);
-            border-radius: 14px;
-            padding: 12px;
-            margin-bottom: 8px;
-            border-right: 4px solid var(--accent-primary);
-        }
-
-        .summary-grid {
-            display: grid;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .summary-card {
-            background: var(--bg-primary);
-            padding: 14px;
-            border-radius: 16px;
-            text-align: center;
-        }
-
-        .charts-container {
-            display: grid;
-            gap: 16px;
-            margin-top: 16px;
-        }
-
-        canvas {
-            max-height: 220px;
-            width: 100% !important;
-        }
-
-        .login-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(12px);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .login-card {
-            background: var(--card-bg);
-            border-radius: 32px;
-            padding: 40px 32px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: var(--shadow-lg);
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(4px);
-            z-index: 1100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .modal-content {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 32px;
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-        }
-
-        .user-info {
-            background: var(--accent-primary);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 40px;
-            font-size: 0.9rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .report-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 16px;
-            flex-wrap: wrap;
-        }
-
-        .report-buttons button {
-            flex: 1;
-            background: var(--accent-secondary);
-        }
-
-        .currency-toggle {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-            background: var(--bg-primary);
-            padding: 8px;
-            border-radius: 50px;
-        }
-
-        .currency-option {
-            flex: 1;
-            text-align: center;
-            padding: 8px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .currency-option.active {
-            background: var(--accent-primary);
-            color: white;
-        }
-
-        .paid-badge {
-            background: var(--success);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            display: inline-block;
-        }
-
-        @media (max-width: 480px) {
-            body { padding: 12px; }
-            .card { padding: 16px; }
-        }
+        body { background: var(--bg-primary); color: var(--text-primary); padding: 16px; min-height: 100vh; transition: all 0.3s ease; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        @media (min-width: 768px) { body { padding: 24px; } .summary-grid { grid-template-columns: repeat(4, 1fr); } .charts-container { grid-template-columns: 1fr 1fr; gap: 24px; } }
+        @media (max-width: 767px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } .charts-container { grid-template-columns: 1fr; } }
+        .card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid var(--border-color); }
+        .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        h1 { font-size: 1.5rem; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .icon-btn { background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 10px 14px; border-radius: 40px; cursor: pointer; transition: all 0.2s; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; background: var(--card-bg); padding: 6px; border-radius: 60px; border: 1px solid var(--border-color); flex-wrap: wrap; }
+        .tab { flex: 1; text-align: center; padding: 12px; border-radius: 50px; cursor: pointer; font-weight: 600; background: transparent; color: var(--text-secondary); }
+        .tab.active { background: var(--accent-primary); color: white; }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); }
+        input, select { width: 100%; padding: 14px; border: 1px solid var(--border-color); border-radius: 16px; font-size: 1rem; background: var(--bg-primary); color: var(--text-primary); }
+        input:focus, select:focus { outline: none; border-color: var(--accent-primary); }
+        button { width: 100%; padding: 14px; border: none; border-radius: 16px; font-size: 1rem; font-weight: 600; cursor: pointer; background: var(--accent-primary); color: white; }
+        button:hover { transform: translateY(-2px); }
+        .btn-danger { background: var(--danger); }
+        .btn-warning { background: var(--warning); }
+        .list-item { background: var(--bg-primary); border-radius: 16px; padding: 14px; margin-bottom: 10px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .item-info { flex: 1; }
+        .item-title { font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .item-details { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; }
+        .item-amount { font-weight: 700; font-size: 1.1rem; color: var(--accent-primary); }
+        .delete-icon, .payment-icon, .edit-icon { cursor: pointer; padding: 8px; font-size: 1.2rem; }
+        .delete-icon { color: var(--danger); }
+        .payment-icon { color: var(--success); }
+        .edit-icon { color: var(--accent-secondary); }
+        .history-item { background: var(--bg-primary); border-radius: 14px; padding: 12px; margin-bottom: 8px; border-right: 4px solid var(--accent-primary); }
+        .summary-grid { display: grid; gap: 12px; margin-bottom: 16px; }
+        .summary-card { background: var(--bg-primary); padding: 14px; border-radius: 16px; text-align: center; }
+        .charts-container { display: grid; gap: 16px; margin-top: 16px; }
+        canvas { max-height: 220px; width: 100% !important; }
+        .login-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(12px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-card { background: var(--card-bg); border-radius: 32px; padding: 40px 32px; width: 100%; max-width: 400px; text-align: center; }
+        .user-info { background: var(--accent-primary); color: white; padding: 6px 12px; border-radius: 40px; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; }
+        .report-buttons { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+        .currency-toggle { display: flex; gap: 10px; margin-bottom: 16px; background: var(--bg-primary); padding: 8px; border-radius: 50px; }
+        .currency-option { flex: 1; text-align: center; padding: 8px; border-radius: 40px; cursor: pointer; font-weight: 600; }
+        .currency-option.active { background: var(--accent-primary); color: white; }
+        .paid-badge { background: var(--success); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; }
+        .monthly-budget-input { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+        .monthly-budget-input input { width: 120px; }
     </style>
 </head>
 <body>
-
 <div id="loginScreen" class="login-overlay">
     <div class="login-card">
         <i class="fas fa-wallet" style="font-size: 60px; color: #10b981; margin-bottom: 20px;"></i>
-        <h2 style="margin-bottom: 12px; color: var(--text-primary);">مرحباً بك</h2>
-        <p style="margin-bottom: 24px; color: var(--text-secondary);">أدخل بريدك الإلكتروني لحفظ بياناتك</p>
-        <input type="email" id="usernameInput" placeholder="البريد الإلكتروني" autocomplete="email">
-        <button id="loginBtn" style="background: #10b981;">دخول / إنشاء حساب <i class="fas fa-arrow-left"></i></button>
+        <h2>مرحباً بك</h2>
+        <p style="margin-bottom: 24px;">أدخل بريدك الإلكتروني لحفظ بياناتك</p>
+        <input type="email" id="usernameInput" placeholder="البريد الإلكتروني">
+        <button id="loginBtn">دخول / إنشاء حساب <i class="fas fa-arrow-left"></i></button>
     </div>
 </div>
 
 <div id="mainApp" style="display: none;">
     <div class="container">
         <div class="app-header">
-            <h1><i class="fas fa-coins"></i> <span id="appTitle">مدير المال الشامل</span></h1>
+            <h1><i class="fas fa-coins"></i> مدير المال الشامل</h1>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <div class="user-info" id="userInfoDisplay">
-                    <i class="fas fa-user"></i>
-                    <span id="currentUserEmail"></span>
-                </div>
+                <div class="user-info"><i class="fas fa-user"></i><span id="currentUserEmail"></span></div>
                 <button class="icon-btn" id="themeToggleBtn"><i class="fas fa-moon"></i></button>
-                <button class="icon-btn" id="langToggleBtn">🇬🇧 EN</button>
                 <button class="icon-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> خروج</button>
             </div>
         </div>
-
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                    <i class="fas fa-exchange-alt"></i>
-                    <span>🇺🇸 1 USD = </span>
-                    <input type="number" id="usdToLbpRate" step="50" value="89500" style="width: 100px; padding: 8px;">
-                    <span>🇱🇧 LBP</span>
-                </div>
+                <div style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-exchange-alt"></i><span>🇺🇸 1 USD = </span>
+                <input type="number" id="usdToLbpRate" step="50" value="89500" style="width: 100px; padding: 8px;"><span>🇱🇧 LBP</span></div>
                 <button id="updateRateBtn" style="width: auto; padding: 8px 16px;">تحديث</button>
             </div>
         </div>
-
         <div class="currency-toggle">
-            <div class="currency-option active" data-currency="USD">🇺🇸 عرض بالدولار</div>
-            <div class="currency-option" data-currency="LBP">🇱🇧 عرض بالليرة</div>
+            <div class="currency-option active" data-currency="USD">🇺🇸 دولار</div>
+            <div class="currency-option" data-currency="LBP">🇱🇧 ليرة</div>
         </div>
-
         <div class="tabs">
-            <div class="tab active" data-tab="debts"><i class="fas fa-hand-holding-usd"></i> <span>الديون</span></div>
-            <div class="tab" data-tab="expenses"><i class="fas fa-shopping-cart"></i> <span>مصروفاتي</span></div>
-            <div class="tab" data-tab="history"><i class="fas fa-history"></i> <span>السجل</span></div>
-            <div class="tab" data-tab="analytics"><i class="fas fa-chart-line"></i> <span>تحليل</span></div>
-            <div class="tab" data-tab="reports"><i class="fas fa-file-alt"></i> <span>تقارير</span></div>
+            <div class="tab active" data-tab="debts"><i class="fas fa-hand-holding-usd"></i> الديون</div>
+            <div class="tab" data-tab="expenses"><i class="fas fa-shopping-cart"></i> مصروفاتي</div>
+            <div class="tab" data-tab="history"><i class="fas fa-history"></i> السجل</div>
+            <div class="tab" data-tab="analytics"><i class="fas fa-chart-line"></i> تحليل</div>
+            <div class="tab" data-tab="reports"><i class="fas fa-file-alt"></i> تقارير</div>
         </div>
 
         <div id="debtsPanel" class="tab-content">
-            <div class="card">
-                <h3 style="margin-bottom: 16px;"><i class="fas fa-plus-circle"></i> إضافة دين</h3>
+            <div class="card"><h3><i class="fas fa-plus-circle"></i> إضافة دين</h3>
                 <div class="input-group"><label>الاسم</label><input type="text" id="debtorName" placeholder="مثال: محمد"></div>
-                <div class="input-group"><label>المبلغ</label><input type="number" id="amountValue" step="any" placeholder="0"></div>
+                <div class="input-group"><label>المبلغ</label><input type="number" id="amountValue" step="any"></div>
                 <div class="input-group"><label>العملة</label><select id="currencyType"><option value="USD">🇺🇸 دولار</option><option value="LBP">🇱🇧 ليرة</option></select></div>
                 <div class="input-group"><label>ملاحظة</label><input type="text" id="noteField" placeholder="سبب الدين"></div>
                 <div class="input-group"><label>النوع</label><select id="debtStatus"><option value="debt">🔴 دين عليّ</option><option value="owed">🟢 لي عند الغير</option></select></div>
-                <button id="addDebtBtn"><i class="fas fa-save"></i> إضافة دين</button>
+                <button id="addDebtBtn">إضافة دين</button>
             </div>
-
-            <div class="card">
-                <h3 style="margin-bottom: 16px;"><i class="fas fa-list"></i> قائمة الديون</h3>
-                <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+            <div class="card"><h3><i class="fas fa-list"></i> قائمة الديون</h3>
+                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
                     <input type="text" id="searchDebts" placeholder="🔍 بحث" style="flex:1;">
                     <select id="filterDebts" style="width: auto;"><option value="all">الكل</option><option value="debt">عليّ</option><option value="owed">لي</option></select>
                 </div>
                 <div id="debtsList"></div>
             </div>
-
-            <div class="card">
-                <h3 style="margin-bottom: 16px;"><i class="fas fa-hand-holding-heart"></i> تسديد دين</h3>
-                <div class="input-group"><label>اختر الدين</label><select id="selectDebtForPayment"></select></div>
-                <div class="input-group"><label>المبلغ</label><input type="number" id="paymentAmount" step="any"></div>
-                <div class="input-group"><label>عملة الدفع</label><select id="paymentCurrency"><option value="USD">دولار</option><option value="LBP">ليرة</option></select></div>
-                <button id="applyPaymentBtn"><i class="fas fa-check-circle"></i> تسديد</button>
-            </div>
         </div>
 
         <div id="expensesPanel" class="tab-content" style="display: none;">
-            <div class="card">
-                <h3 style="margin-bottom: 16px;"><i class="fas fa-receipt"></i> إضافة مصروف يومي</h3>
-                <div class="input-group"><label>البيان</label><input type="text" id="expenseName" placeholder="مثال: غداء، مواصلات"></div>
+            <div class="card"><h3><i class="fas fa-receipt"></i> إضافة مصروف</h3>
+                <div class="input-group"><label>البيان</label><input type="text" id="expenseName" placeholder="مثال: غداء"></div>
                 <div class="input-group"><label>المبلغ</label><input type="number" id="expenseAmount" step="any"></div>
                 <div class="input-group"><label>العملة</label><select id="expenseCurrency"><option value="USD">دولار</option><option value="LBP">ليرة</option></select></div>
-                <div class="input-group"><label>التصنيف</label><select id="expenseCategory"><option value="food">🍔 طعام</option><option value="transport">🚗 مواصلات</option><option value="shopping">🛍️ تسوق</option><option value="bills">💡 فواتير</option><option value="entertainment">🎬 ترفيه</option><option value="other">📦 أخرى</option></select></div>
-                <button id="addExpenseBtn"><i class="fas fa-plus"></i> إضافة مصروف</button>
+                <div class="input-group"><label>التصنيف</label><select id="expenseCategory"><option value="food">🍔 طعام</option><option value="transport">🚗 مواصلات</option><option value="shopping">🛍️ تسوق</option><option value="bills">💡 فواتير</option><option value="other">📦 أخرى</option></select></div>
+                <button id="addExpenseBtn">إضافة مصروف</button>
             </div>
-
-            <div class="card">
-                <h3 style="margin-bottom: 16px;"><i class="fas fa-chart-simple"></i> ملخص المصروفات اليوم</h3>
-                <div id="todayExpensesSummary" style="font-size: 1.2rem; font-weight: bold; text-align: center;"></div>
+            <div class="card"><h3><i class="fas fa-calendar-day"></i> مصروفات اليوم فقط</h3>
+                <div id="todayExpensesSummary" style="font-size: 1.2rem; font-weight: bold; text-align: center; margin-bottom: 16px;"></div>
                 <div id="expensesList"></div>
+                <div style="margin-top: 12px; font-size:0.8rem; color: var(--text-secondary);"><i class="fas fa-info-circle"></i> المصروفات القديمة موجودة في "السجل"</div>
             </div>
         </div>
 
         <div id="historyPanel" class="tab-content" style="display: none;">
-            <div class="card">
-                <h3 style="margin-bottom: 16px;"><i class="fas fa-clock"></i> سجل جميع المعاملات</h3>
-                <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
-                    <input type="text" id="searchHistory" placeholder="🔍 بحث في السجل" style="flex:1;">
+            <div class="card"><h3><i class="fas fa-clock"></i> سجل جميع المعاملات</h3>
+                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                    <input type="text" id="searchHistory" placeholder="🔍 بحث" style="flex:1;">
                     <select id="filterHistoryType"><option value="all">الكل</option><option value="debt">الديون</option><option value="expense">المصروفات</option><option value="payment">التسديدات</option></select>
                 </div>
                 <div id="historyList"></div>
-                <button id="clearHistoryBtn" class="btn-warning" style="margin-top: 12px;"><i class="fas fa-trash-alt"></i> مسح السجل</button>
+                <button id="clearHistoryBtn" class="btn-warning">مسح السجل (كود 1234)</button>
             </div>
         </div>
 
         <div id="analyticsPanel" class="tab-content" style="display: none;">
-            <div class="card">
-                <h3 style="margin-bottom: 16px;"><i class="fas fa-chart-pie"></i> التحليل المالي - الشهر الحالي</h3>
+            <div class="card"><h3><i class="fas fa-chart-pie"></i> التحليل المالي - الشهر الحالي</h3>
                 <div class="summary-grid">
                     <div class="summary-card"><i class="fas fa-hand-holding-usd"></i><div id="totalDebtsSummary">0</div><small>إجمالي الديون</small></div>
                     <div class="summary-card"><i class="fas fa-wallet"></i><div id="totalExpensesToday">0</div><small>مصروفات اليوم</small></div>
-                    <div class="summary-card"><i class="fas fa-chart-line"></i><div id="totalExpensesMonth">0</div><small>هذا الشهر</small></div>
+                    <div class="summary-card"><i class="fas fa-chart-line"></i><div id="totalExpensesMonth">0</div><small>مصروفات الشهر</small></div>
                     <div class="summary-card"><i class="fas fa-balance-scale"></i><div id="netPosition">0</div><small>صافي المركز</small></div>
                 </div>
                 <div class="charts-container">
@@ -559,32 +167,17 @@
         </div>
 
         <div id="reportsPanel" class="tab-content" style="display: none;">
-            <div class="card">
-                <h3 style="margin-bottom: 16px;"><i class="fas fa-calendar-alt"></i> التقارير التاريخية</h3>
-                
-                <div class="input-group">
-                    <label>اختر التقرير</label>
-                    <select id="reportType">
-                        <option value="daily">تقرير يومي</option>
-                        <option value="monthly">تقرير شهري</option>
-                    </select>
-                </div>
-                
-                <div id="dailyDatePicker" class="input-group">
-                    <label>اختر التاريخ</label>
-                    <input type="date" id="reportDate">
-                </div>
-                
-                <div id="monthlyPicker" class="input-group" style="display: none;">
-                    <label>اختر الشهر والسنة</label>
-                    <input type="month" id="reportMonth">
-                </div>
-                
+            <div class="card"><h3><i class="fas fa-calendar-alt"></i> التقارير الشاملة</h3>
+                <div class="input-group"><label>نوع التقرير</label><select id="reportType"><option value="daily">تقرير يومي</option><option value="monthly">تقرير شهري شامل</option></select></div>
+                <div id="dailyDatePicker" class="input-group"><label>اختر التاريخ</label><input type="date" id="reportDate"></div>
+                <div id="monthlyPicker" class="input-group" style="display: none;"><label>اختر الشهر</label><input type="month" id="reportMonth"></div>
+                <div class="monthly-budget-input"><label>الميزانية الشهرية (دولار):</label><input type="number" id="monthlyBudget" value="500" step="50"></div>
                 <div id="reportContent" style="background: var(--bg-primary); border-radius: 16px; padding: 16px; margin: 16px 0;"></div>
-                
+                <canvas id="reportChartCanvas" style="max-height: 300px; margin-bottom: 16px;"></canvas>
                 <div class="report-buttons">
-                    <button id="exportExcelBtn"><i class="fas fa-file-excel"></i> تصدير Excel</button>
-                    <button id="exportCSVBtn"><i class="fas fa-file-csv"></i> تصدير CSV</button>
+                    <button id="exportExcelBtn"><i class="fas fa-file-excel"></i> Excel</button>
+                    <button id="exportCSVBtn"><i class="fas fa-file-csv"></i> CSV</button>
+                    <button id="exportReportChartBtn"><i class="fas fa-chart-line"></i> تصدير الرسم</button>
                 </div>
             </div>
         </div>
@@ -592,558 +185,322 @@
 </div>
 
 <script>
-    let currentUser = null;
-    let debts = [];
-    let expenses = [];
-    let transactions = [];
-    let usdToLbp = 89500;
-    let currentLang = 'ar';
-    let displayCurrency = 'USD';
-    let categoryChart = null;
-    let debtVsExpenseChart = null;
+    let currentUser = null, debts = [], expenses = [], transactions = [], usdToLbp = 89500, displayCurrency = 'USD', monthlyBudget = 500;
+    let categoryChart = null, debtVsExpenseChart = null, reportChart = null;
 
-    function convertToUSD(amount, currency) {
-        return currency === 'USD' ? amount : amount / usdToLbp;
-    }
-
-    function convertFromUSD(amount, targetCurrency) {
-        return targetCurrency === 'USD' ? amount : amount * usdToLbp;
-    }
-
-    function formatAmount(amountUSD) {
-        if (displayCurrency === 'USD') {
-            return `${amountUSD.toFixed(2)} USD`;
-        } else {
-            const lbpAmount = amountUSD * usdToLbp;
-            return `${Math.round(lbpAmount).toLocaleString()} LBP`;
-        }
-    }
-
-    function saveAll() {
-        if (!currentUser) return;
-        const data = { debts, expenses, transactions, usdToLbp, lang: currentLang };
-        localStorage.setItem(`debtManager_${currentUser}`, JSON.stringify(data));
-        localStorage.setItem('lastLoggedInUser', currentUser);
-    }
-
+    function convertToUSD(amount, currency) { return currency === 'USD' ? amount : amount / usdToLbp; }
+    function formatAmount(amountUSD) { return displayCurrency === 'USD' ? `${amountUSD.toFixed(2)} USD` : `${Math.round(amountUSD * usdToLbp).toLocaleString()} LBP`; }
+    function saveAll() { if(currentUser) localStorage.setItem(`debtManager_${currentUser}`, JSON.stringify({ debts, expenses, transactions, usdToLbp, monthlyBudget })); }
+    
     function loadUserData(username) {
         const saved = localStorage.getItem(`debtManager_${username}`);
-        if (saved) {
-            const data = JSON.parse(saved);
-            debts = data.debts || [];
-            expenses = data.expenses || [];
-            transactions = data.transactions || [];
-            usdToLbp = data.usdToLbp || 89500;
-            if (data.lang) currentLang = data.lang;
-        } else {
-            debts = [];
-            expenses = [];
-            transactions = [];
-        }
+        if(saved) { const data = JSON.parse(saved); debts = data.debts || []; expenses = data.expenses || []; transactions = data.transactions || []; usdToLbp = data.usdToLbp || 89500; monthlyBudget = data.monthlyBudget || 500; }
+        else { debts = []; expenses = []; transactions = []; monthlyBudget = 500; }
         document.getElementById('usdToLbpRate').value = usdToLbp;
-        updateLanguage();
+        document.getElementById('monthlyBudget').value = monthlyBudget;
         renderAll();
     }
-
-    function addTransaction(type, description, amount, currency, details = {}) {
-        transactions.unshift({
-            id: Date.now(),
-            type, 
-            description, 
-            amount, 
-            currency,
-            date: new Date().toISOString(),
-            ...details
-        });
-        if (transactions.length > 1000) transactions.pop();
-        saveAll();
+    
+    function addTransaction(type, description, amount, currency, details = {}) { 
+        transactions.unshift({ id: Date.now(), type, description, amount, currency, date: new Date().toISOString(), ...details }); 
+        if(transactions.length > 2000) transactions.pop(); 
+        saveAll(); 
     }
-
+    
     function addDebt() {
         const name = document.getElementById('debtorName').value.trim();
         const amount = parseFloat(document.getElementById('amountValue').value);
         const currency = document.getElementById('currencyType').value;
         const note = document.getElementById('noteField').value;
         const type = document.getElementById('debtStatus').value;
-        
-        if (!name) { alert("الرجاء إدخال الاسم"); return; }
-        if (isNaN(amount) || amount <= 0) { alert("الرجاء إدخال مبلغ صحيح"); return; }
-        
-        debts.push({
-            id: Date.now(), name, originalAmount: amount, currency,
-            remainingAmount: amount, note: note || "", type,
-            createdAt: new Date().toISOString(),
-            isPaid: false
-        });
-        addTransaction('debt', `${type === 'debt' ? 'دين جديد عليّ' : 'دين جديد لي'} - ${name}`, amount, currency, { debtorName: name, debtType: type });
-        
+        if(!name) return alert("الرجاء إدخال الاسم");
+        if(isNaN(amount) || amount<=0) return alert("مبلغ صحيح");
+        debts.push({ id: Date.now(), name, originalAmount: amount, currency, remainingAmount: amount, note, type, createdAt: new Date().toISOString() });
+        addTransaction('debt', `${type === 'debt' ? 'دين عليّ' : 'دين لي'} - ${name}`, amount, currency);
         document.getElementById('debtorName').value = '';
         document.getElementById('amountValue').value = '';
         document.getElementById('noteField').value = '';
         renderAll();
     }
-
+    
     function addExpense() {
         const name = document.getElementById('expenseName').value.trim();
         const amount = parseFloat(document.getElementById('expenseAmount').value);
         const currency = document.getElementById('expenseCurrency').value;
         const category = document.getElementById('expenseCategory').value;
-        
-        if (!name) { alert("الرجاء إدخال البيان"); return; }
-        if (isNaN(amount) || amount <= 0) { alert("الرجاء إدخال مبلغ صحيح"); return; }
-        
-        expenses.push({
-            id: Date.now(), name, amount, currency, category,
-            date: new Date().toISOString()
-        });
+        if(!name) return alert("الرجاء إدخال البيان");
+        if(isNaN(amount) || amount<=0) return alert("مبلغ صحيح");
+        expenses.push({ id: Date.now(), name, amount, currency, category, date: new Date().toISOString() });
         addTransaction('expense', `مصروف: ${name}`, amount, currency, { category });
-        
         document.getElementById('expenseName').value = '';
         document.getElementById('expenseAmount').value = '';
         renderAll();
     }
-
-    function applyPayment() {
-        const id = parseInt(document.getElementById('selectDebtForPayment').value);
-        const payAmount = parseFloat(document.getElementById('paymentAmount').value);
-        const payCurrency = document.getElementById('paymentCurrency').value;
-        
-        if (!id || isNaN(payAmount) || payAmount <= 0) {
-            alert("اختر ديناً وأدخل مبلغاً صحيحاً");
-            return;
-        }
-        
+    
+    function markDebtAsPaid(id) {
+        let code = prompt("تأكيد التسديد الكامل - أدخل كود 1234:");
+        if(code !== '1234') return alert("❌ كود غير صحيح! لم يتم التسديد.");
         const debt = debts.find(d => d.id === id);
-        if (!debt) return;
-        
-        let amountInDebtCurr = payCurrency === debt.currency ? payAmount : 
-                               (payCurrency === 'USD' ? payAmount * usdToLbp : payAmount / usdToLbp);
-        
-        if (amountInDebtCurr > debt.remainingAmount) amountInDebtCurr = debt.remainingAmount;
-        
-        const paidAmount = amountInDebtCurr;
-        debt.remainingAmount -= paidAmount;
-        
-        addTransaction('payment', `تسديد لـ ${debt.name}`, payAmount, payCurrency, { 
-            debtorName: debt.name, 
-            paidAmount: paidAmount,
-            remainingAfterPayment: debt.remainingAmount 
-        });
-        
-        if (debt.remainingAmount < 0.01) {
-            debt.isPaid = true;
+        if(debt && debt.remainingAmount > 0) {
+            let paidAmount = debt.remainingAmount;
             debt.remainingAmount = 0;
-            addTransaction('payment', `✅ تم تسديد الدين بالكامل: ${debt.name}`, debt.originalAmount, debt.currency, { 
-                debtorName: debt.name, 
-                fullyPaid: true 
-            });
-        }
-        
-        document.getElementById('paymentAmount').value = '';
-        renderAll();
-    }
-
-    function deleteDebt(id) { 
-        const debt = debts.find(d => d.id === id);
-        if (debt && confirm(`هل أنت متأكد من حذف دين ${debt.name}؟`)) {
-            debts = debts.filter(d => d.id !== id); 
+            addTransaction('payment', `✅ تسديد كامل للدين: ${debt.name}`, paidAmount, debt.currency, { fullyPaid: true });
             renderAll();
-        }
+        } else alert("الدين مدفوع بالفعل");
     }
     
-    function deleteExpense(id) { 
-        if (confirm('هل أنت متأكد من حذف هذا المصروف؟')) {
-            expenses = expenses.filter(e => e.id !== id); 
-            renderAll();
-        }
+    function deleteDebt(id) {
+        let code = prompt("أدخل كود الحذف (1234):");
+        if(code !== '1234') return alert("❌ كود غير صحيح! لا يمكن الحذف.");
+        const debt = debts.find(d => d.id === id);
+        if(debt && confirm(`حذف دين ${debt.name}؟`)) { debts = debts.filter(d => d.id !== id); renderAll(); }
     }
-
+    
+    function deleteExpense(id) {
+        let code = prompt("أدخل كود الحذف (1234):");
+        if(code !== '1234') return alert("❌ كود غير صحيح! لا يمكن الحذف.");
+        if(confirm('حذف المصروف؟')) { expenses = expenses.filter(e => e.id !== id); renderAll(); }
+    }
+    
+    function editExpense(id) {
+        let code = prompt("أدخل كود التعديل (1234):");
+        if(code !== '1234') return alert("❌ كود غير صحيح! لا يمكن التعديل.");
+        const expense = expenses.find(e => e.id === id);
+        if(!expense) return;
+        let newAmount = parseFloat(prompt("المبلغ الجديد:", expense.amount));
+        if(isNaN(newAmount) || newAmount<=0) return alert("مبلغ غير صحيح");
+        expense.amount = newAmount;
+        addTransaction('edit', `تعديل مصروف: ${expense.name}`, newAmount, expense.currency);
+        renderAll();
+    }
+    
     function renderDebtsList() {
         const search = document.getElementById('searchDebts')?.value.toLowerCase() || '';
         const filter = document.getElementById('filterDebts')?.value || 'all';
         let filtered = debts.filter(d => d.name.toLowerCase().includes(search));
-        if (filter !== 'all') filtered = filtered.filter(d => d.type === filter);
-        
+        if(filter !== 'all') filtered = filtered.filter(d => d.type === filter);
         const container = document.getElementById('debtsList');
-        if (!container) return;
-        
-        container.innerHTML = filtered.length === 0 ? '<div class="list-item">لا توجد ديون</div>' :
-            filtered.map(d => {
-                const amountUSD = convertToUSD(d.remainingAmount, d.currency);
-                const isFullyPaid = d.remainingAmount < 0.01;
-                return `
-                <div class="list-item">
-                    <div class="item-info">
-                        <div class="item-title">
-                            ${d.name} ${d.type === 'debt' ? '🔴' : '🟢'}
-                            ${isFullyPaid ? '<span class="paid-badge">✅ مدفوع بالكامل</span>' : ''}
-                        </div>
-                        <div class="item-details">${d.note || 'لا توجد ملاحظات'}</div>
+        if(!container) return;
+        container.innerHTML = filtered.length === 0 ? '<div class="list-item">لا توجد ديون</div>' : filtered.map(d => {
+            const amountUSD = convertToUSD(d.remainingAmount, d.currency);
+            const isPaid = d.remainingAmount < 0.01;
+            return `<div class="list-item">
+                <div class="item-info">
+                    <div class="item-title">
+                        ${d.name} ${d.type === 'debt' ? '🔴' : '🟢'}
+                        ${isPaid ? '<span class="paid-badge">✅ مدفوع</span>' : `<i class="fas fa-check-circle payment-icon" onclick="window.markDebtAsPaid(${d.id})" title="تم الدفع"></i>`}
                     </div>
-                    <div class="item-amount">${formatAmount(amountUSD)}</div>
-                    <i class="fas fa-trash delete-icon" onclick="window.deleteDebt(${d.id})"></i>
-                </div>`;
-            }).join('');
-        
-        const select = document.getElementById('selectDebtForPayment');
-        if (select) {
-            const activeDebts = debts.filter(d => d.remainingAmount > 0 && d.type === 'debt');
-            select.innerHTML = '<option value="">-- اختر ديناً --</option>' + 
-                activeDebts.map(d => `<option value="${d.id}">${d.name} - المتبقي: ${formatAmount(convertToUSD(d.remainingAmount, d.currency))}</option>`).join('');
-        }
+                    <div class="item-details">${d.note || ''}</div>
+                </div>
+                <div class="item-amount">${formatAmount(amountUSD)}</div>
+                <i class="fas fa-trash delete-icon" onclick="window.deleteDebt(${d.id})"></i>
+            </div>`;
+        }).join('');
     }
-
+    
     function renderExpensesList() {
         const today = new Date().toDateString();
         const todayExpenses = expenses.filter(e => new Date(e.date).toDateString() === today);
         const totalTodayUSD = todayExpenses.reduce((s, e) => s + convertToUSD(e.amount, e.currency), 0);
-        
-        const summaryDiv = document.getElementById('todayExpensesSummary');
-        if (summaryDiv) summaryDiv.innerHTML = `<strong>${formatAmount(totalTodayUSD)}</strong>`;
+        document.getElementById('todayExpensesSummary').innerHTML = `<strong>${formatAmount(totalTodayUSD)}</strong>`;
         
         const container = document.getElementById('expensesList');
-        if (!container) return;
-        
-        const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
-        
-        container.innerHTML = sortedExpenses.length === 0 ? '<div class="list-item">لا توجد مصروفات</div>' :
-            sortedExpenses.slice(0, 50).map(e => {
+        if(!container) return;
+        container.innerHTML = todayExpenses.length === 0 ? '<div class="list-item">لا توجد مصروفات اليوم</div>' : 
+            todayExpenses.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(e => {
                 const amountUSD = convertToUSD(e.amount, e.currency);
-                return `
-                <div class="list-item">
+                return `<div class="list-item">
                     <div class="item-info">
-                        <div class="item-title">${e.name}</div>
-                        <div class="item-details">${e.category} | ${new Date(e.date).toLocaleDateString('ar-EG')}</div>
+                        <div class="item-title">${e.name} <i class="fas fa-edit edit-icon" onclick="window.editExpense(${e.id})"></i></div>
+                        <div class="item-details">${e.category}</div>
                     </div>
                     <div class="item-amount">${formatAmount(amountUSD)}</div>
                     <i class="fas fa-trash delete-icon" onclick="window.deleteExpense(${e.id})"></i>
                 </div>`;
             }).join('');
     }
-
+    
     function renderHistoryList() {
         const search = document.getElementById('searchHistory')?.value.toLowerCase() || '';
         const filter = document.getElementById('filterHistoryType')?.value || 'all';
         let filtered = transactions.filter(t => t.description.toLowerCase().includes(search));
-        if (filter !== 'all') filtered = filtered.filter(t => t.type === filter);
-        
+        if(filter !== 'all') filtered = filtered.filter(t => t.type === filter);
         const container = document.getElementById('historyList');
-        if (!container) return;
-        
-        container.innerHTML = filtered.length === 0 ? '<div class="history-item">لا توجد معاملات</div>' :
-            filtered.slice(0, 200).map(t => {
+        if(!container) return;
+        container.innerHTML = filtered.length === 0 ? '<div class="history-item">لا توجد معاملات</div>' : 
+            filtered.slice(0, 300).map(t => {
                 const amountUSD = convertToUSD(t.amount, t.currency);
-                const isPayment = t.type === 'payment';
-                const icon = isPayment ? '✅' : (t.type === 'debt' ? '💰' : '💸');
-                return `
-                <div class="history-item">
+                const icon = t.type === 'payment' ? '✅' : (t.type === 'debt' ? '💰' : '💸');
+                return `<div class="history-item">
                     <div><strong>${icon} ${t.description}</strong></div>
-                    <div style="font-size:0.85rem; margin-top: 5px;">💰 ${formatAmount(amountUSD)} | 📅 ${new Date(t.date).toLocaleString('ar-EG')}</div>
-                    ${t.details?.fullyPaid ? '<div style="color: var(--success); font-size:0.8rem;">✓ تم التسديد الكامل</div>' : ''}
+                    <div>💰 ${formatAmount(amountUSD)} | 📅 ${new Date(t.date).toLocaleString('ar-EG')}</div>
+                    ${t.details?.fullyPaid ? '<div style="color: var(--success);">✓ تم التسديد الكامل</div>' : ''}
                 </div>`;
             }).join('');
     }
-
+    
     function updateAnalytics() {
-        const now = new Date();
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
-        
-        const totalDebtsUSD = debts.filter(d => d.remainingAmount > 0).reduce((s, d) => s + convertToUSD(d.remainingAmount, d.currency), 0);
-        const todayExpensesUSD = expenses.filter(e => new Date(e.date).toDateString() === now.toDateString())
-            .reduce((s, e) => s + convertToUSD(e.amount, e.currency), 0);
-        const monthExpensesUSD = expenses.filter(e => {
-            const d = new Date(e.date);
-            return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-        }).reduce((s, e) => s + convertToUSD(e.amount, e.currency), 0);
-        const owedUSD = debts.filter(d => d.type === 'owed' && d.remainingAmount > 0).reduce((s, d) => s + convertToUSD(d.remainingAmount, d.currency), 0);
+        const now = new Date(), currentMonth = now.getMonth(), currentYear = now.getFullYear();
+        const totalDebtsUSD = debts.filter(d => d.remainingAmount > 0).reduce((s,d)=> s + convertToUSD(d.remainingAmount,d.currency),0);
+        const todayExpensesUSD = expenses.filter(e=>new Date(e.date).toDateString()===now.toDateString()).reduce((s,e)=>s+convertToUSD(e.amount,e.currency),0);
+        const monthExpensesUSD = expenses.filter(e=>{let d=new Date(e.date); return d.getMonth()===currentMonth && d.getFullYear()===currentYear;}).reduce((s,e)=>s+convertToUSD(e.amount,e.currency),0);
+        const owedUSD = debts.filter(d=>d.type==='owed' && d.remainingAmount>0).reduce((s,d)=>s+convertToUSD(d.remainingAmount,d.currency),0);
         const net = totalDebtsUSD - owedUSD;
-        
         document.getElementById('totalDebtsSummary').innerHTML = formatAmount(totalDebtsUSD);
         document.getElementById('totalExpensesToday').innerHTML = formatAmount(todayExpensesUSD);
         document.getElementById('totalExpensesMonth').innerHTML = formatAmount(monthExpensesUSD);
         document.getElementById('netPosition').innerHTML = formatAmount(Math.abs(net));
         
-        const categories = { food: 0, transport: 0, shopping: 0, bills: 0, entertainment: 0, other: 0 };
-        expenses.filter(e => {
-            const d = new Date(e.date);
-            return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-        }).forEach(e => { categories[e.category] += convertToUSD(e.amount, e.currency); });
-        
-        if (categoryChart) categoryChart.destroy();
-        categoryChart = new Chart(document.getElementById('expenseCategoryChart'), {
-            type: 'doughnut',
-            data: { labels: ['طعام', 'مواصلات', 'تسوق', 'فواتير', 'ترفيه', 'أخرى'], 
-                    datasets: [{ data: Object.values(categories), backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#6b7280'] }] },
-            options: { responsive: true, maintainAspectRatio: true }
-        });
-        
-        if (debtVsExpenseChart) debtVsExpenseChart.destroy();
-        debtVsExpenseChart = new Chart(document.getElementById('debtVsExpenseChart'), {
-            type: 'bar',
-            data: { labels: ['إجمالي الديون', 'مصروفات اليوم'], 
-                    datasets: [{ data: [totalDebtsUSD, todayExpensesUSD], backgroundColor: ['#ef4444', '#10b981'] }] },
-            options: { responsive: true, maintainAspectRatio: true }
-        });
-        
+        const categories = { food:0, transport:0, shopping:0, bills:0, other:0 };
+        expenses.filter(e=>{let d=new Date(e.date); return d.getMonth()===currentMonth && d.getFullYear()===currentYear;}).forEach(e=>categories[e.category]+=convertToUSD(e.amount,e.currency));
+        if(categoryChart) categoryChart.destroy();
+        categoryChart = new Chart(document.getElementById('expenseCategoryChart'), { type:'doughnut', data:{ labels:['طعام','مواصلات','تسوق','فواتير','أخرى'], datasets:[{ data:Object.values(categories), backgroundColor:['#10b981','#3b82f6','#f59e0b','#ef4444','#6b7280'] }] }, options:{ responsive:true } });
+        if(debtVsExpenseChart) debtVsExpenseChart.destroy();
+        debtVsExpenseChart = new Chart(document.getElementById('debtVsExpenseChart'), { type:'bar', data:{ labels:['إجمالي الديون','مصروفات اليوم'], datasets:[{ data:[totalDebtsUSD, todayExpensesUSD], backgroundColor:['#ef4444','#10b981'] }] }, options:{ responsive:true } });
         const insight = document.getElementById('insightText');
-        if (net > 0) insight.innerHTML = `⚠️ صافي الديون: ${formatAmount(net)}، ننصح بتقليل المصروفات اليومية`;
-        else insight.innerHTML = `✅ ممتاز! صافي الديون لصالحك: ${formatAmount(Math.abs(net))}`;
+        if(net>0) insight.innerHTML = `⚠️ صافي الديون: ${formatAmount(net)}`;
+        else insight.innerHTML = `✅ صافي الديون لصالحك: ${formatAmount(Math.abs(net))}`;
     }
-
+    
     function generateReport() {
-        const reportType = document.getElementById('reportType').value;
+        const type = document.getElementById('reportType').value;
+        let totalExpenses = 0, totalPayments = 0, remaining = 0;
+        let labels = [], data = [];
         
-        if (reportType === 'daily') {
+        if(type === 'daily') {
             const date = document.getElementById('reportDate').value;
-            if (!date) { alert('الرجاء اختيار التاريخ'); return; }
-            const targetDate = new Date(date);
-            const dayExpenses = expenses.filter(e => new Date(e.date).toDateString() === targetDate.toDateString());
-            const totalUSD = dayExpenses.reduce((s, e) => s + convertToUSD(e.amount, e.currency), 0);
-            
-            let html = `<h4>📅 تقرير يوم ${targetDate.toLocaleDateString('ar-EG')}</h4>`;
-            html += `<p><strong>💰 إجمالي المصروفات:</strong> ${formatAmount(totalUSD)}</p>`;
-            html += `<p><strong>📊 عدد المصروفات:</strong> ${dayExpenses.length}</p>`;
-            html += `<h5>📋 تفاصيل المصروفات:</h5>`;
-            dayExpenses.forEach(e => {
-                const amountUSD = convertToUSD(e.amount, e.currency);
-                html += `<div>• ${e.name} - ${formatAmount(amountUSD)} (${e.category})</div>`;
-            });
+            if(!date) return;
+            const target = new Date(date);
+            const dayExpenses = expenses.filter(e=>new Date(e.date).toDateString()===target.toDateString());
+            totalExpenses = dayExpenses.reduce((s,e)=>s+convertToUSD(e.amount,e.currency),0);
+            const dayPayments = transactions.filter(t=>t.type==='payment' && new Date(t.date).toDateString()===target.toDateString()).reduce((s,t)=>s+convertToUSD(t.amount,t.currency),0);
+            totalPayments = dayPayments;
+            let html = `<h4>📅 تقرير يوم ${target.toLocaleDateString('ar-EG')}</h4>
+                        <p><strong>💰 إجمالي المصروفات:</strong> ${formatAmount(totalExpenses)}</p>
+                        <p><strong>💸 إجمالي المدفوعات (تسديد ديون):</strong> ${formatAmount(totalPayments)}</p>
+                        <p><strong>📊 عدد المصروفات:</strong> ${dayExpenses.length}</p>`;
             document.getElementById('reportContent').innerHTML = html;
+            labels = dayExpenses.map(e=>e.name);
+            data = dayExpenses.map(e=>convertToUSD(e.amount,e.currency));
         } else {
             const monthYear = document.getElementById('reportMonth').value;
-            if (!monthYear) { alert('الرجاء اختيار الشهر'); return; }
+            if(!monthYear) return;
             const [year, month] = monthYear.split('-');
-            const monthExpenses = expenses.filter(e => {
-                const d = new Date(e.date);
-                return d.getFullYear() == year && d.getMonth() == month - 1;
-            });
-            const totalUSD = monthExpenses.reduce((s, e) => s + convertToUSD(e.amount, e.currency), 0);
-            const categories = { food: 0, transport: 0, shopping: 0, bills: 0, entertainment: 0, other: 0 };
-            monthExpenses.forEach(e => { categories[e.category] += convertToUSD(e.amount, e.currency); });
-            
-            let html = `<h4>📆 تقرير شهر ${month}/${year}</h4>`;
-            html += `<p><strong>💰 إجمالي المصروفات:</strong> ${formatAmount(totalUSD)}</p>`;
-            html += `<p><strong>📊 عدد المصروفات:</strong> ${monthExpenses.length}</p>`;
-            html += `<h5>📋 تفاصيل حسب التصنيف:</h5>`;
-            for (let [cat, val] of Object.entries(categories)) {
-                if (val > 0) html += `<div>• ${cat}: ${formatAmount(val)}</div>`;
-            }
+            const monthExpenses = expenses.filter(e=>{let d=new Date(e.date); return d.getFullYear()==year && d.getMonth()==month-1;});
+            totalExpenses = monthExpenses.reduce((s,e)=>s+convertToUSD(e.amount,e.currency),0);
+            const monthPayments = transactions.filter(t=>t.type==='payment' && {let d=new Date(t.date); return d.getFullYear()==year && d.getMonth()==month-1;}).reduce((s,t)=>s+convertToUSD(t.amount,t.currency),0);
+            totalPayments = monthPayments;
+            const budget = parseFloat(document.getElementById('monthlyBudget').value) || 500;
+            remaining = budget - totalExpenses;
+            const catSum = { food:0, transport:0, shopping:0, bills:0, other:0 };
+            monthExpenses.forEach(e=>catSum[e.category]+=convertToUSD(e.amount,e.currency));
+            let html = `<h4>📆 تقرير شهر ${month}/${year} شامل</h4>
+                        <p><strong>💰 إجمالي المصروفات الشهرية:</strong> ${formatAmount(totalExpenses)}</p>
+                        <p><strong>💸 إجمالي المدفوعات (تسديد ديون):</strong> ${formatAmount(totalPayments)}</p>
+                        <p><strong>📊 الميزانية الشهرية:</strong> ${formatAmount(budget)}</p>
+                        <p><strong>📉 المتبقي من الميزانية:</strong> ${formatAmount(remaining)}</p>
+                        <p><strong>📋 عدد المصروفات:</strong> ${monthExpenses.length}</p>
+                        <h5>تفاصيل حسب التصنيف:</h5>` + Object.entries(catSum).filter(([_,v])=>v>0).map(([k,v])=>`<div>• ${k === 'food' ? 'طعام' : k === 'transport' ? 'مواصلات' : k === 'shopping' ? 'تسوق' : k === 'bills' ? 'فواتير' : 'أخرى'}: ${formatAmount(v)}</div>`).join('');
             document.getElementById('reportContent').innerHTML = html;
+            labels = ['طعام', 'مواصلات', 'تسوق', 'فواتير', 'أخرى'];
+            data = Object.values(catSum);
         }
+        
+        if(reportChart) reportChart.destroy();
+        const ctx = document.getElementById('reportChartCanvas').getContext('2d');
+        reportChart = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'المبلغ (USD)', data: data, backgroundColor: '#10b981' }] }, options: { responsive: true } });
     }
-
+    
+    function exportReportChart() { if(reportChart) { const link = document.createElement('a'); link.download = 'report_chart.png'; link.href = document.getElementById('reportChartCanvas').toDataURL(); link.click(); } }
+    
     function exportToExcel() {
-        const reportType = document.getElementById('reportType').value;
+        const type = document.getElementById('reportType').value;
         let data = [];
-        
-        if (reportType === 'daily') {
+        if(type === 'daily') {
             const date = document.getElementById('reportDate').value;
-            if (!date) { alert('الرجاء اختيار التاريخ'); return; }
-            const targetDate = new Date(date);
-            const dayExpenses = expenses.filter(e => new Date(e.date).toDateString() === targetDate.toDateString());
-            data = dayExpenses.map(e => ({
-                'التاريخ': new Date(e.date).toLocaleDateString('ar-EG'),
-                'البيان': e.name,
-                'المبلغ الأصلي': e.amount,
-                'العملة': e.currency,
-                'المبلغ بالدولار': convertToUSD(e.amount, e.currency).toFixed(2),
-                'التصنيف': e.category
-            }));
+            if(!date) return alert("اختر تاريخ");
+            const target = new Date(date);
+            const dayExpenses = expenses.filter(e=>new Date(e.date).toDateString()===target.toDateString());
+            data = dayExpenses.map(e=>({ 'التاريخ':new Date(e.date).toLocaleDateString('ar-EG'), 'البيان':e.name, 'المبلغ':e.amount, 'العملة':e.currency, 'المبلغ بالدولار':convertToUSD(e.amount,e.currency).toFixed(2), 'التصنيف':e.category }));
         } else {
             const monthYear = document.getElementById('reportMonth').value;
-            if (!monthYear) { alert('الرجاء اختيار الشهر'); return; }
+            if(!monthYear) return alert("اختر شهر");
             const [year, month] = monthYear.split('-');
-            const monthExpenses = expenses.filter(e => {
-                const d = new Date(e.date);
-                return d.getFullYear() == year && d.getMonth() == month - 1;
-            });
-            data = monthExpenses.map(e => ({
-                'التاريخ': new Date(e.date).toLocaleDateString('ar-EG'),
-                'البيان': e.name,
-                'المبلغ الأصلي': e.amount,
-                'العملة': e.currency,
-                'المبلغ بالدولار': convertToUSD(e.amount, e.currency).toFixed(2),
-                'التصنيف': e.category
-            }));
+            const monthExpenses = expenses.filter(e=>{let d=new Date(e.date); return d.getFullYear()==year && d.getMonth()==month-1;});
+            data = monthExpenses.map(e=>({ 'التاريخ':new Date(e.date).toLocaleDateString('ar-EG'), 'البيان':e.name, 'المبلغ':e.amount, 'العملة':e.currency, 'المبلغ بالدولار':convertToUSD(e.amount,e.currency).toFixed(2), 'التصنيف':e.category }));
         }
-        
         const ws = XLSX.utils.json_to_sheet(data);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'التقرير');
-        XLSX.writeFile(wb, `financial_report_${Date.now()}.xlsx`);
+        XLSX.writeFile(wb, `report_${Date.now()}.xlsx`);
     }
-
+    
     function exportToCSV() {
-        const reportType = document.getElementById('reportType').value;
+        const type = document.getElementById('reportType').value;
         let data = [];
-        
-        if (reportType === 'daily') {
+        if(type === 'daily') {
             const date = document.getElementById('reportDate').value;
-            if (!date) { alert('الرجاء اختيار التاريخ'); return; }
-            const targetDate = new Date(date);
-            const dayExpenses = expenses.filter(e => new Date(e.date).toDateString() === targetDate.toDateString());
-            data = dayExpenses.map(e => ({
-                'التاريخ': new Date(e.date).toLocaleDateString('ar-EG'),
-                'البيان': e.name,
-                'المبلغ الأصلي': e.amount,
-                'العملة': e.currency,
-                'المبلغ بالدولار': convertToUSD(e.amount, e.currency).toFixed(2),
-                'التصنيف': e.category
-            }));
+            if(!date) return alert("اختر تاريخ");
+            const target = new Date(date);
+            const dayExpenses = expenses.filter(e=>new Date(e.date).toDateString()===target.toDateString());
+            data = dayExpenses.map(e=>({ 'التاريخ':new Date(e.date).toLocaleDateString('ar-EG'), 'البيان':e.name, 'المبلغ':e.amount, 'العملة':e.currency, 'المبلغ بالدولار':convertToUSD(e.amount,e.currency).toFixed(2), 'التصنيف':e.category }));
         } else {
             const monthYear = document.getElementById('reportMonth').value;
-            if (!monthYear) { alert('الرجاء اختيار الشهر'); return; }
+            if(!monthYear) return alert("اختر شهر");
             const [year, month] = monthYear.split('-');
-            const monthExpenses = expenses.filter(e => {
-                const d = new Date(e.date);
-                return d.getFullYear() == year && d.getMonth() == month - 1;
-            });
-            data = monthExpenses.map(e => ({
-                'التاريخ': new Date(e.date).toLocaleDateString('ar-EG'),
-                'البيان': e.name,
-                'المبلغ الأصلي': e.amount,
-                'العملة': e.currency,
-                'المبلغ بالدولار': convertToUSD(e.amount, e.currency).toFixed(2),
-                'التصنيف': e.category
-            }));
+            const monthExpenses = expenses.filter(e=>{let d=new Date(e.date); return d.getFullYear()==year && d.getMonth()==month-1;});
+            data = monthExpenses.map(e=>({ 'التاريخ':new Date(e.date).toLocaleDateString('ar-EG'), 'البيان':e.name, 'المبلغ':e.amount, 'العملة':e.currency, 'المبلغ بالدولار':convertToUSD(e.amount,e.currency).toFixed(2), 'التصنيف':e.category }));
         }
-        
         const ws = XLSX.utils.json_to_sheet(data);
         const csv = XLSX.utils.sheet_to_csv(ws);
         const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `financial_report_${Date.now()}.csv`;
+        link.download = `report_${Date.now()}.csv`;
         link.click();
-        URL.revokeObjectURL(link.href);
     }
-
+    
     function clearHistoryWithCode() {
-        const code = prompt('⚠️ عملية خطيرة! أدخل كود التأكيد 1234 لمسح السجل بالكامل:');
-        if (code === '1234') {
-            if (confirm('هل أنت متأكد تماماً من مسح سجل المعاملات بالكامل؟ هذا الإجراء لا يمكن التراجع عنه!')) {
-                transactions = [];
-                renderAll();
-                alert('✅ تم مسح السجل بنجاح!');
-            }
-        } else if (code !== null) {
-            alert('❌ كود غير صحيح! لم يتم مسح السجل.');
-        }
+        const code = prompt('⚠️ كود التأكيد 1234 لمسح السجل:');
+        if(code === '1234' && confirm('مسح كل السجل؟')) { transactions = []; renderAll(); alert('تم مسح السجل'); }
+        else if(code !== null) alert('كود خاطئ');
     }
-
-    function renderAll() {
-        if (!currentUser) return;
-        renderDebtsList();
-        renderExpensesList();
-        renderHistoryList();
-        updateAnalytics();
-        saveAll();
-    }
-
-    function updateLanguage() {
-        const langToggle = document.getElementById('langToggleBtn');
-        if (langToggle) langToggle.innerHTML = currentLang === 'ar' ? '🇬🇧 EN' : '🇸🇦 عربي';
-    }
-
-    function switchTab(tabName) {
-        document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-        document.getElementById(`${tabName}Panel`).style.display = 'block';
-        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-        document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
-    }
-
+    
+    function renderAll() { if(!currentUser) return; renderDebtsList(); renderExpensesList(); renderHistoryList(); updateAnalytics(); saveAll(); generateReport(); }
+    function switchTab(tabName) { document.querySelectorAll('.tab-content').forEach(el=>el.style.display='none'); document.getElementById(`${tabName}Panel`).style.display='block'; document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active'); if(tabName==='reports') generateReport(); }
+    
     function initApp() {
         const lastUser = localStorage.getItem('lastLoggedInUser');
-        if (lastUser) {
-            currentUser = lastUser;
-            loadUserData(currentUser);
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-            document.getElementById('currentUserEmail').textContent = currentUser;
-        }
-        
-        document.getElementById('loginBtn').onclick = () => {
-            const username = document.getElementById('usernameInput').value.trim();
-            if (!username || !username.includes('@')) {
-                alert("الرجاء إدخال بريد إلكتروني صحيح");
-                return;
-            }
-            currentUser = username;
-            loadUserData(currentUser);
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-            document.getElementById('currentUserEmail').textContent = currentUser;
-        };
-        
+        if(lastUser) { currentUser = lastUser; loadUserData(currentUser); document.getElementById('loginScreen').style.display='none'; document.getElementById('mainApp').style.display='block'; document.getElementById('currentUserEmail').textContent = currentUser; }
+        document.getElementById('loginBtn').onclick = () => { let u = document.getElementById('usernameInput').value.trim(); if(!u || !u.includes('@')) return alert("بريد صحيح"); currentUser = u; loadUserData(currentUser); document.getElementById('loginScreen').style.display='none'; document.getElementById('mainApp').style.display='block'; document.getElementById('currentUserEmail').textContent = currentUser; localStorage.setItem('lastLoggedInUser', currentUser); };
         document.getElementById('addDebtBtn').onclick = addDebt;
         document.getElementById('addExpenseBtn').onclick = addExpense;
-        document.getElementById('applyPaymentBtn').onclick = applyPayment;
         document.getElementById('clearHistoryBtn').onclick = clearHistoryWithCode;
-        document.getElementById('updateRateBtn').onclick = () => {
-            usdToLbp = parseFloat(document.getElementById('usdToLbpRate').value);
-            saveAll();
-            renderAll();
-        };
+        document.getElementById('updateRateBtn').onclick = () => { usdToLbp = parseFloat(document.getElementById('usdToLbpRate').value); saveAll(); renderAll(); };
         document.getElementById('themeToggleBtn').onclick = () => document.body.classList.toggle('dark');
-        document.getElementById('langToggleBtn').onclick = () => {
-            currentLang = currentLang === 'ar' ? 'en' : 'ar';
-            updateLanguage();
-            renderAll();
-        };
-        document.getElementById('logoutBtn').onclick = () => {
-            currentUser = null;
-            localStorage.removeItem('lastLoggedInUser');
-            document.getElementById('mainApp').style.display = 'none';
-            document.getElementById('loginScreen').style.display = 'flex';
-        };
-        
+        document.getElementById('logoutBtn').onclick = () => { currentUser = null; localStorage.removeItem('lastLoggedInUser'); document.getElementById('mainApp').style.display='none'; document.getElementById('loginScreen').style.display='flex'; };
         document.getElementById('searchDebts')?.addEventListener('input', renderDebtsList);
         document.getElementById('filterDebts')?.addEventListener('change', renderDebtsList);
         document.getElementById('searchHistory')?.addEventListener('input', renderHistoryList);
         document.getElementById('filterHistoryType')?.addEventListener('change', renderHistoryList);
-        
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.onclick = () => switchTab(tab.dataset.tab);
-        });
-        
-        document.querySelectorAll('.currency-option').forEach(opt => {
-            opt.onclick = () => {
-                document.querySelectorAll('.currency-option').forEach(o => o.classList.remove('active'));
-                opt.classList.add('active');
-                displayCurrency = opt.dataset.currency;
-                renderAll();
-                generateReport();
-            };
-        });
-        
-        document.getElementById('reportType').onchange = () => {
-            const isDaily = document.getElementById('reportType').value === 'daily';
-            document.getElementById('dailyDatePicker').style.display = isDaily ? 'block' : 'none';
-            document.getElementById('monthlyPicker').style.display = isDaily ? 'none' : 'block';
-            if (isDaily && !document.getElementById('reportDate').value) {
-                document.getElementById('reportDate').value = new Date().toISOString().split('T')[0];
-            }
-            if (!isDaily && !document.getElementById('reportMonth').value) {
-                const now = new Date();
-                document.getElementById('reportMonth').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-            }
-            generateReport();
-        };
-        
+        document.querySelectorAll('.tab').forEach(tab=>tab.onclick=()=>switchTab(tab.dataset.tab));
+        document.querySelectorAll('.currency-option').forEach(opt=>opt.onclick=()=>{ document.querySelectorAll('.currency-option').forEach(o=>o.classList.remove('active')); opt.classList.add('active'); displayCurrency = opt.dataset.currency; renderAll(); generateReport(); });
+        document.getElementById('reportType').onchange = () => { const isDaily = document.getElementById('reportType').value === 'daily'; document.getElementById('dailyDatePicker').style.display = isDaily ? 'block' : 'none'; document.getElementById('monthlyPicker').style.display = isDaily ? 'none' : 'block'; if(isDaily && !document.getElementById('reportDate').value) document.getElementById('reportDate').value = new Date().toISOString().split('T')[0]; if(!isDaily && !document.getElementById('reportMonth').value) { const n=new Date(); document.getElementById('reportMonth').value = `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`; } generateReport(); };
         document.getElementById('reportDate').onchange = generateReport;
         document.getElementById('reportMonth').onchange = generateReport;
+        document.getElementById('monthlyBudget').onchange = () => { monthlyBudget = parseFloat(document.getElementById('monthlyBudget').value) || 500; saveAll(); generateReport(); };
         document.getElementById('exportExcelBtn').onclick = exportToExcel;
         document.getElementById('exportCSVBtn').onclick = exportToCSV;
-        
+        document.getElementById('exportReportChartBtn').onclick = exportReportChart;
         document.getElementById('reportDate').value = new Date().toISOString().split('T')[0];
-        const now = new Date();
-        document.getElementById('reportMonth').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const now=new Date(); document.getElementById('reportMonth').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
         generateReport();
     }
     
+    window.markDebtAsPaid = markDebtAsPaid;
     window.deleteDebt = deleteDebt;
     window.deleteExpense = deleteExpense;
+    window.editExpense = editExpense;
     initApp();
 </script>
 </body>
